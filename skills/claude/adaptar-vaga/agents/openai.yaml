@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adaptar vaga"
+  short_description: "Crie currículo verificável e audite o ATS literal"
+  default_prompt: "Use $adaptar-vaga para pontuar minha aderência, confirmar comigo os requisitos materiais com score 0, escrever o currículo, simular uma triagem literal de ATS antigo, avaliar o rascunho completo no chat e só criar o Word depois da minha aprovação."

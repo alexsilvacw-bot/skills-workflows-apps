@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex"
+  short_description: "Plan auditable research after confirming intent"
+  default_prompt: "Use $pesquisa-alex. First audit my objective, audience, expected outcome, and time horizon; wait for my confirmation before planning the research."

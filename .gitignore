@@ -1,0 +1,12 @@
+# Local and personal data
+.env
+*.sqlite
+*.sqlite3
+*.db
+*.log
+__pycache__/
+*.py[cod]
+.DS_Store
+candidaturas/
+base/curriculo_base.json
+.local/

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avaliar currículo"
+  short_description: "Audita o currículo e descobre provas ainda não registradas"
+  default_prompt: "Use $avaliar-curriculo para comparar a vaga, a matriz e o currículo, procurar histórias ou conquistas que atendam às exigências fracas, fazer perguntas ancoradas e bloquear o Word até processar as respostas materiais."

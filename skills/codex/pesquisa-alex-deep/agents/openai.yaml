@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex: Deep"
+  short_description: "Run traceable research with corpus enrichment"
+  default_prompt: "Use $pesquisa-alex-deep within my confirmed Pesquisa Alex run to research the authorized corpus and enrich it through logged discovery when material evidence is missing."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sugerir proposta — edital + lote"
+  short_description: "Consulta medianas históricas de lotes semelhantes"
+  default_prompt: "Use $sugerir-proposta-edital-lote para consultar as referências históricas do edital e lote que eu informar."

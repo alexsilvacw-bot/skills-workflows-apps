@@ -1,0 +1,18 @@
+Sunburst Studio
+
+1. Abra Sunburst Studio.app com dois cliques no Finder.
+2. Cole a chave de API no campo Chave de API, somente na interface.
+3. Escreva sua descrição e escolha formato e qualidade.
+4. Clique em Gerar imagem. Cada clique confirmado faz um pedido pago à OpenAI.
+5. A imagem aparece na prévia e fica salva na subpasta imagens.
+6. Use Salvar PNG para baixar outra cópia.
+7. Clique em Encerrar para fechar o servidor local e descartar a chave da memória.
+
+A chave não é gravada em arquivo. É necessário informá-la novamente quando reabrir o aplicativo.
+O histórico desta interface é separado das imagens criadas anteriormente pelo Terminal.
+Se o aplicativo não abrir, use Gerar imagens.command, na mesma pasta.
+
+Validação realizada com respostas simuladas, sem geração paga. Acesso real ao modelo depende da sua conta OpenAI.
+
+Briefing Markdown
+Use Usar modelo .md para preencher as seções, Importar .md para abrir um briefing e Baixar briefing para guardar as instruções com formato e qualidade. Cada nova imagem salva automaticamente PNG, MD e metadados na pasta imagens. Salvar .md com imagem baixa o documento com vínculo relativo ao PNG; mantenha os dois arquivos na mesma pasta. Arquivos Markdown são lidos como texto, sem executar HTML ou buscar imagens externas.

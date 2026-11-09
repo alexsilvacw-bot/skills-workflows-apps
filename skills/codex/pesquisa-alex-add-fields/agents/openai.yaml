@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex: Add Fields"
+  short_description: "Refine research fields without weakening evidence"
+  default_prompt: "Use $pesquisa-alex-add-fields within my confirmed Pesquisa Alex run to refine the research fields without weakening the evidence contract."

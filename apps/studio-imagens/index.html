@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunburst Studio</title>
+<style>
+:root{font-family:'Avenir Next',Avenir,system-ui,sans-serif;color:#23334d;background:#edf0f6;font-synthesis:none}*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;justify-content:space-between;padding:24px 4vw;border-bottom:1px solid #ced6e3;background:#fff}header strong{font-size:21px;letter-spacing:-.7px}.sun{display:inline-block;color:#7956ca;font-size:32px;vertical-align:middle;margin-right:10px}header span.note{font-size:13px;color:#637188;margin-left:24px}button,a,select,input,textarea{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:wait;opacity:.6}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #8c75cf;outline-offset:3px}.quiet{border:1px solid #cbd3e1;background:#fff;color:#23334d;border-radius:7px;padding:9px 14px}main{max-width:1500px;margin:auto;padding:36px 4vw;display:grid;grid-template-columns:370px minmax(0,1fr);gap:44px}h1{font-size:34px;letter-spacing:-1.4px;font-weight:600;margin:0 0 8px}p{line-height:1.6} .intro{color:#637188;font-size:14px;margin:0 0 25px}label,summary{font-size:14px;font-weight:600;display:block;margin-bottom:10px}textarea,input,select{width:100%;border:1px solid #c3cbd9;border-radius:8px;background:white;color:#23334d;padding:12px}textarea{height:205px;resize:vertical;line-height:1.6}textarea::placeholder,input::placeholder{color:#7b8595}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:21px 0}select{font-size:14px}details{margin:22px 0}summary{cursor:pointer;list-style:revert}small{display:block;color:#637188;line-height:1.6;font-size:12px;margin-top:8px}small a{color:#6442b5}.primary{border:0;background:#6743b5;color:#fff;font-weight:600;border-radius:8px;width:100%;padding:15px;box-shadow:0 4px 10px #6743b51a}.primary:hover{background:#58379f}.charge{text-align:center;font-size:12px;color:#637188;margin:10px 0}#status{font-size:14px;line-height:1.6;min-height:25px;margin-top:16px}#status.error{color:#a22642;background:#ffe9ee;padding:12px;border-radius:8px}.stage{border-radius:12px;background:#dfe5f0;min-height:465px;display:flex;align-items:center;justify-content:center;padding:25px;position:relative;overflow:hidden}.stage img{max-width:100%;max-height:570px;object-fit:contain;box-shadow:0 12px 40px #23334d22;border-radius:3px}.empty{text-align:center;max-width:340px}.frames{width:145px;height:125px;border:1px solid #a2aec5;border-radius:7px;transform:rotate(-7deg);margin:0 auto 34px;position:relative;background:#eaf0fa}.frames:after{content:'';position:absolute;width:100%;height:100%;border:1px solid #96a2b9;border-radius:7px;transform:rotate(15deg);background:#f7f9fd;left:8px;top:-4px}.empty h2{font-size:21px;letter-spacing:-.5px;font-weight:500}.empty p{font-size:14px;color:#637188}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0}.toolbar p{font-size:13px;color:#637188;margin:0}.download{display:inline-block;background:#fff;border:1px solid #cbd3e1;color:#23334d;padding:9px 15px;text-decoration:none;border-radius:7px;white-space:nowrap}.history-title{margin:35px 0 13px;font-size:16px;font-weight:600}.history{display:flex;gap:12px;overflow:auto;padding:3px 3px 12px}.thumb{flex:0 0 96px;width:96px;height:84px;padding:0;border:1px solid #c4cfdf;background:#e0e5ee;border-radius:6px;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.thumb:hover{outline:2px solid #7956ca}#history-empty{font-size:13px;color:#637188}.hidden{display:none!important}@media(max-width:850px){main{grid-template-columns:1fr;gap:28px;padding:25px 5vw}header{padding:18px 5vw}header span.note{display:none}.stage{min-height:340px}textarea{height:155px}h1{font-size:29px}}
+.md-tools{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}.md-tools button{font-size:12px;padding:8px 10px}.toolbar{flex-wrap:wrap}.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}textarea.markdown{height:360px;font-family:Menlo,monospace;font-size:12px}.md-hint{margin:10px 0 16px}#brief-file{display:none}.references{margin:20px 0}.reference-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.reference-card{min-width:0;background:white;border:1px solid #cbd3e1;border-radius:8px;padding:8px}.reference-card img{width:100%;height:90px;object-fit:contain}.reference-card small{overflow-wrap:anywhere}.reference-card button{font-size:12px;margin-top:8px}#reference-error{color:#a22642}</style>
+<header><div><strong><span class="sun" aria-hidden="true">✳</span>Sunburst Studio</strong><span class="note">Seu espaço para criar imagens</span></div><button id="exit" class="quiet">Encerrar</button></header>
+<main><section><h1>Da ideia à imagem.</h1><p class="intro">Descreva a cena. Escolha o formato. Veja o resultado.</p>
+<form id="form"><label for="prompt">O que vamos criar?</label><div class="md-tools"><button type="button" class="quiet" id="md-template">Usar modelo .md</button><button type="button" class="quiet" id="md-import">Importar .md</button><button type="button" class="quiet" id="md-export">Baixar briefing</button></div><input type="file" id="brief-file" accept=".md,.markdown,text/markdown,text/plain" aria-label="Importar briefing Markdown"><textarea id="prompt" required maxlength="10000" placeholder="Descreva o assunto, o cenário, a luz e o estilo. Se houver texto na imagem, escreva exatamente o que deve aparecer."></textarea>
+<small class="md-hint">Use texto livre ou um briefing Markdown. O padrão organiza objetivo, cena, estilo, composição, cores, texto e restrições.</small><div class="references"><label for="reference-files">Imagens de referência</label><input id="reference-files" type="file" multiple accept="image/png,image/jpeg,image/webp"><small>Até 4 imagens PNG, JPG ou WebP. Máximo de 10 MB por imagem e 20 MB no total. No prompt, explique o que aproveitar de cada referência. Elas serão enviadas à OpenAI ao gerar.</small><small id="reference-error" role="status"></small><div id="reference-list" class="reference-list"></div><small>As referências ficam nesta aba. Ao reabrir o Studio ou importar um briefing, anexe as imagens novamente.</small></div><div class="row"><div><label for="size">Formato</label><select id="size"><option value="1080x1350">Instagram · 4:5 · 1080 × 1350</option><option value="1024x1024">Quadrado · 1:1</option><option value="1536x1024">Horizontal · 3:2</option><option value="1024x1536">Vertical · 2:3</option><option value="1536x864">Panorâmico · 16:9</option><option value="864x1536">Stories · 9:16</option></select></div><div><label for="quality">Qualidade</label><select id="quality"><option value="low">Rascunho</option><option value="medium">Média</option><option value="high" selected>Alta</option><option value="xhigh">Muito alta</option><option value="max">Máxima</option></select></div></div>
+<details id="credentials" open><summary id="key-summary">Conectar à OpenAI</summary><label for="key">Chave de API</label><input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…"><small>A chave fica apenas na memória até você encerrar o aplicativo. <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">Criar uma chave</a></small></details>
+<button id="generate" class="primary" type="submit">Gerar imagem</button><p class="charge">Uma imagem por clique. Cobrança na sua conta OpenAI.</p><small>Modelo GPT Image 2.5 Sunburst. Qualidade e tamanho influenciam o custo. <a href="https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst" target="_blank" rel="noreferrer">Consultar preços</a></small>
+<div id="status" role="status" aria-live="polite"></div></form></section>
+<section aria-label="Imagens"><div class="stage" id="stage"><div class="empty" id="empty"><div class="frames" aria-hidden="true"></div><h2>Sua próxima imagem começa aqui.</h2><p>O resultado aparecerá neste espaço.<br>Suas criações ficam salvas neste Mac.</p></div><img id="preview" class="hidden" alt="Imagem gerada"></div>
+<div id="toolbar" class="toolbar hidden"><p id="caption"></p><div class="toolbar-actions"><a id="download" class="download">Salvar PNG</a><button id="download-md" class="quiet" type="button">Salvar .md com imagem</button></div></div>
+<h2 class="history-title">Suas criações</h2><p id="history-empty">As imagens geradas por esta interface aparecerão aqui.</p><div class="history" id="history"></div></section></main>
+<script>
+const $=id=>document.getElementById(id);
+let token=location.hash.slice(1)||sessionStorage.getItem('studio-token')||'';
+sessionStorage.setItem('studio-token',token);history.replaceState(null,'',location.pathname);
+let selectedItem=null;
+let references=[];
+let loadingReferences=false;
+let running=false,timer=null,start=0,previewURL=null,thumbURLs=[];
+async function connectSession(){const r=await fetch('/session',{headers:{'X-Studio-Client':'1'}});if(!r.ok)throw Error('Não foi possível conectar. Abra o Sunburst Studio em Aplicativos.');token=(await r.json()).token;sessionStorage.setItem('studio-token',token);}
+async function api(path,body){await connectSession();const r=await fetch(path,{method:body===undefined?'GET':'POST',headers:{'X-Studio-Token':token,...(body===undefined?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok){let d=await r.json();throw Error(d.message||'Não foi possível completar a solicitação.');}return r;}
+
+function message(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';}
+function busy(value){running=value;for(const id of ['md-template','md-import','md-export','reference-files'])$(id).disabled=value;$('generate').disabled=value||loadingReferences;document.querySelectorAll('.reference-card button').forEach(b=>b.disabled=value);$('exit').disabled=value;$('generate').textContent=value?'Gerando sua imagem…':'Gerar imagem';$('stage').setAttribute('aria-busy',value);}
+async function show(item){selectedItem=item;const r=await api('/image/'+item.name);const url=URL.createObjectURL(await r.blob());if(previewURL)URL.revokeObjectURL(previewURL);previewURL=url;$('preview').src=url;$('preview').alt=item.prompt;$('preview').classList.remove('hidden');$('empty').classList.add('hidden');$('toolbar').classList.remove('hidden');$('caption').textContent=item.size+' px · PNG';$('download').href=url;$('download').download=item.name;}
+async function loadHistory(){const items=await(await api('/history')).json();$('history').replaceChildren();thumbURLs.forEach(URL.revokeObjectURL);thumbURLs=[];$('history-empty').classList.toggle('hidden',items.length>0);for(const item of items){const b=document.createElement('button');b.className='thumb';b.title=item.prompt;b.setAttribute('aria-label','Abrir imagem: '+item.prompt);b.onclick=()=>show(item).catch(e=>message(e.message,true));$('history').append(b);const url=URL.createObjectURL(await(await api('/image/'+item.name)).blob());thumbURLs.push(url);const img=document.createElement('img');img.src=url;img.alt='';b.append(img);}return items;}
+async function poll(){try{const s=await(await api('/status')).json();if(s.has_key){$('key-summary').textContent='Chave disponível nesta sessão';$('credentials').open=false;}if(s.state==='running'){busy(true);message('Gerando. Pode levar alguns minutos. '+Math.floor((Date.now()-start)/1000)+' s');timer=setTimeout(poll,2000);return;}busy(false);if(s.state==='done'){await show(s.item);message('Imagem pronta e salva no histórico.');await loadHistory();}if(s.state==='error'){message(s.message,true);if(s.message.includes('Chave'))$('credentials').open=true;}}catch(e){busy(false);message('A interface perdeu a conexão. Reabra pelo atalho. Confira o histórico antes de repetir a geração.',true);}}
+
+function renderReferences(){
+  $('reference-list').replaceChildren();
+  references.forEach((ref,index)=>{
+    const card=document.createElement('div');card.className='reference-card';
+    const img=document.createElement('img');img.src=ref.url;img.alt='Referência '+(index+1);
+    const label=document.createElement('small');label.textContent=(index+1)+'. '+ref.file.name;
+    const remove=document.createElement('button');remove.type='button';remove.className='quiet';remove.textContent='Remover';remove.disabled=running;
+    remove.setAttribute('aria-label','Remover referência '+(index+1));
+    remove.onclick=()=>{URL.revokeObjectURL(ref.url);references.splice(index,1);renderReferences();};
+    card.append(img,label,remove);$('reference-list').append(card);
+  });
+}
+function fileData(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=()=>reject(Error('Não foi possível ler a imagem.'));reader.readAsDataURL(file);});}
+$('reference-files').onchange=async()=>{
+  const files=Array.from($('reference-files').files);if(!files.length)return;
+  loadingReferences=true;$('generate').disabled=true;$('reference-files').disabled=true;
+  const pending=[];
+  try{
+    if(references.length+files.length>4)throw Error('Escolha até 4 imagens. Remova uma referência antes de adicionar outra.');
+    if(files.some(f=>!['image/png','image/jpeg','image/webp'].includes(f.type)))throw Error('Use imagens PNG, JPG ou WebP.');
+    if(files.some(f=>!f.size||f.size>10*1024*1024)||[...references.map(r=>r.file),...files].reduce((n,f)=>n+f.size,0)>20*1024*1024)throw Error('Use até 10 MB por imagem e 20 MB no total.');
+    for(const file of files){
+      const url=URL.createObjectURL(file);
+      try{const img=new Image();img.src=url;await img.decode();pending.push({file,url,data:await fileData(file)});}
+      catch(e){URL.revokeObjectURL(url);throw Error('Não foi possível abrir '+file.name+'. Escolha uma imagem válida.');}
+    }
+    references.push(...pending);renderReferences();$('reference-error').textContent='';
+  }catch(e){pending.forEach(r=>URL.revokeObjectURL(r.url));$('reference-error').textContent=e.message;}
+  finally{loadingReferences=false;$('reference-files').value='';$('reference-files').disabled=running;$('generate').disabled=running;}
+};
+
+const template = `# Briefing de imagem
+
+## Objetivo
+[Onde a imagem será usada e o que deve comunicar.]
+
+## Cena e assunto
+[Assunto principal, ação, cenário e elementos obrigatórios.]
+
+## Estilo visual
+[Fotografia, ilustração ou outro estilo. Descreva as referências.]
+
+## Composição
+[Enquadramento, posição dos elementos e espaços livres.]
+
+## Cores e iluminação
+[Paleta de cores, luz e atmosfera.]
+
+## Texto na imagem
+[Escreva o texto exato ou indique: sem texto.]
+
+## Restrições
+[O que não deve aparecer ou ser alterado.]
+`;
+function mdBody(text){return text.trim().startsWith('#')?text.trim():'# Briefing de imagem\n\n## Objetivo\n'+text.trim();}
+function documentMD(text,size,quality){return `---\npadrao: sunburst-brief-v1\nformato: ${size}\nqualidade: ${quality}\n---\n\n${mdBody(text)}\n`;}
+function downloadText(text,name){const url=URL.createObjectURL(new Blob([text],{type:'text/markdown;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+function updateEditor(){$('prompt').classList.toggle('markdown',/^\s*#/m.test($('prompt').value));}
+$('prompt').addEventListener('input',updateEditor);
+$('md-template').onclick=()=>{const existing=$('prompt').value.trim();if(existing.startsWith('#')){message('O editor já contém um briefing Markdown. Edite as seções abaixo.');return;}$('prompt').value=existing?template.replace('[Onde a imagem será usada e o que deve comunicar.]',()=>existing):template;updateEditor();$('prompt').focus();message('Preencha as seções entre colchetes. Formato e qualidade são escolhidos nos controles abaixo.');};
+$('md-import').onclick=()=>$('brief-file').click();
+$('brief-file').onchange=async()=>{const file=$('brief-file').files[0];if(!file)return;try{if(!/\.(md|markdown)$/i.test(file.name))throw Error('Escolha um arquivo .md ou .markdown.');if(file.size>60000)throw Error('O arquivo deve ter no máximo 60 KB.');let text=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer()).replace(/^\uFEFF/,'').replace(/\r\n/g,'\n');let size=null,quality=null;if(text.startsWith('---\n')){const end=text.indexOf('\n---\n',4);if(end<0)throw Error('O cabeçalho Markdown está incompleto. Feche-o com uma linha de três hífens.');const header=text.slice(4,end);for(const line of header.split('\n')){const match=line.match(/^(formato|qualidade):\s*(.*?)\s*$/);if(match){if(match[1]==='formato')size=match[2];else quality=match[2];}}text=text.slice(end+5);}text=text.split('<!-- sunburst-result -->')[0].trim();if(!text||text.length>10000)throw Error('O briefing precisa ter entre 1 e 10.000 caracteres.');if(size&&!Array.from($('size').options).some(o=>o.value===size))throw Error('Formato não reconhecido no arquivo. Use um dos formatos da interface.');if(quality&&!Array.from($('quality').options).some(o=>o.value===quality))throw Error('Qualidade não reconhecida no arquivo. Use low, medium, high, xhigh ou max.');if($('prompt').value.trim()&&!confirm('Substituir o texto atual pelo arquivo selecionado?'))return;$('prompt').value=text;if(size)$('size').value=size;if(quality)$('quality').value=quality;updateEditor();message('Briefing importado. Revise o texto, o formato e a qualidade antes de gerar.');}catch(e){message(e instanceof TypeError?'Não foi possível ler o arquivo. Salve-o como texto UTF-8.':e.message,true);}finally{$('brief-file').value='';}};
+$('md-export').onclick=()=>{const text=$('prompt').value.trim();if(!text){message('Escreva uma descrição ou use o modelo .md antes de baixar.',true);return;}downloadText(documentMD(text,$('size').value,$('quality').value),'briefing-sunburst.md');message('Briefing exportado com formato e qualidade. Nenhuma imagem foi gerada.');};
+$('download-md').onclick=async()=>{if(!selectedItem)return;try{const item=selectedItem;const r=await api('/brief/'+item.name);downloadText(await r.text(),item.name.replace(/\.png$/,'.md'));message('Salve também o PNG na mesma pasta do .md para exibir a imagem no documento.');}catch(e){message(e.message,true);}};
+
+$('form').onsubmit=async e=>{e.preventDefault();if(running||loadingReferences)return;busy(true);message('Enviando sua descrição…');try{await api('/generate',{prompt:$('prompt').value,size:$('size').value,quality:$('quality').value,key:$('key').value,references:references.map(r=>({data:r.data}))});$('key').value='';start=Date.now();await poll();}catch(e){busy(false);message(e.message,true);}};
+$('exit').onclick=async()=>{try{await api('/shutdown',{});sessionStorage.removeItem('studio-token');$('key').value='';$('generate').disabled=true;$('exit').disabled=true;message('Aplicativo encerrado. Você pode fechar esta aba.');}catch(e){message(e.message,true);}};
+(async()=>{try{const items=await loadHistory();if(items.length)await show(items[0]);const s=await(await api('/status')).json();if(s.has_key){$('credentials').open=false;$('key-summary').textContent='Chave disponível nesta sessão';}if(s.state==='running'){start=Date.now();poll();}}catch(e){message(e.message,true);}})();
+</script></html>

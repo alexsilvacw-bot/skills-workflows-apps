@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex: Report"
+  short_description: "Build question-driven reports across domains"
+  default_prompt: "Use $pesquisa-alex-report within my confirmed Pesquisa Alex run to create an audience-appropriate report, optional dossier, and audit appendix without hiding uncertainty."
