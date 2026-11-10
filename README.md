@@ -9,12 +9,13 @@ Repositório privado para acompanhar versões de skills e código de ferramentas
 - `apps/buscador-influenciadores`: código do buscador, sem banco, resultados ou arquivos de validação.
 - `apps/studio-imagens`: código do Studio, sem imagens geradas nem materiais de campanhas.
 - `apps/revisor-de-telas`: HTML e bundle local do aplicativo.
+- `apps/voice-studio`: registro da versão instalada do Voice Studio; o pacote de 814 MB e suas dependências não foram copiados.
 - `apps/adaptar-vaga`: scripts, interface e documentação; currículos, candidaturas e credenciais ficam fora.
 
 ## Itens ainda sem fonte local identificada
 
 - Workflow “Debatedor Claude vs. ChatGPT”.
-- Clonador de voz mencionado pelo usuário; os projetos locais de voz em tempo real não foram identificados como clonador.
+
 
 O site Ag.Geo já está versionado em [alexsilvacw-bot/aggeo-site](https://github.com/alexsilvacw-bot/aggeo-site) e não foi duplicado aqui.
 
