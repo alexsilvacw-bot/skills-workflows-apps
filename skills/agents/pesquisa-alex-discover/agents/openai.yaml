@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex: Discover"
+  short_description: "Build an auditable, extensible source corpus"
+  default_prompt: "Use $pesquisa-alex-discover within my confirmed Pesquisa Alex run to discover and retain plausible research objects in a versioned corpus."

@@ -17,3 +17,7 @@ Repositório privado para acompanhar versões de skills e código de ferramentas
 - Workflow “Debatedor Claude vs. ChatGPT”. O arquivo-fonte ainda não foi localizado neste computador.
 
 O site Ag.Geo já está versionado em [alexsilvacw-bot/aggeo-site](https://github.com/alexsilvacw-bot/aggeo-site) e não foi duplicado aqui. Skills de bibliotecas genéricas instaladas não foram copiadas como criações próprias.
+
+## Fluxo de atualização
+
+As skills selecionadas em `~/.agents/skills`, `~/.codex/skills` e `~/.claude/skills` usam links para este checkout local, mantendo as diferenças por ambiente. Para atualizações em agentes e aplicativos, sincronize apenas os arquivos-fonte aprovados para `workflows/` ou `apps/`. Após aprovação, revise o diff, faça commit e envie `main` pelo GitHub Desktop. Dados pessoais, segredos, bancos locais, logs e saídas de execução permanecem fora.

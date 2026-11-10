@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pesquisa Alex: Add Items"
+  short_description: "Extend research objects without losing auditability"
+  default_prompt: "Use $pesquisa-alex-add-items within my confirmed Pesquisa Alex run to extend the research object list without discarding inconclusive entries."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prospecção B2B"
+  short_description: "Listas B2B qualificadas com Apollo e outras fontes"
+  default_prompt: "Use $prospeccao-b2b para definir o ICP, coletar nas fontes adequadas — incluindo Apollo quando fizer sentido — e entregar uma lista qualificada pronta para handoff, sem criar mensagens ou escolher o canal."
