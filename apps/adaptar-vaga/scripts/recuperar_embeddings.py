@@ -59,9 +59,12 @@ def settings(path=CONFIG_PATH):
                   'fracao_similaridade_minima_componente'):
         if type(config.get(field)) not in (int, float) or not 0 <= config[field] <= 1:
             raise ValueError('Configuração embedding inválida: ' + field)
-    focal_limit = config.get('redacao', {}).get('correcoes_focais_maximas', 2)
-    if type(focal_limit) is not int or focal_limit < 1:
+    focal_limit = config.get('redacao', {}).get('correcoes_focais_maximas', 1)
+    if type(focal_limit) is not int or focal_limit != 1:
         raise ValueError('Limite de correções focais inválido.')
+    technical_limit = config.get('redacao', {}).get('correcoes_tecnicas_maximas', 2)
+    if type(technical_limit) is not int or not 0 <= technical_limit <= 2:
+        raise ValueError('Limite de correções técnicas inválido.')
     target = Path(config.get('arquivo_indice', ''))
     if not str(target) or target.is_absolute() or '..' in target.parts or target.suffix != '.sqlite3':
         raise ValueError('Caminho relativo do índice embedding inválido.')
@@ -326,6 +329,9 @@ class EmbeddingCaller:
             structured.review_selection(items, reqs,
                 dict(config, correcoes_maximas_fundamento=self.config['correcoes_maximas_fundamento']),
                 assessments, selection, self.selection_allowed, model, key, caller)
+            print('Fundamentação integrada à cobertura da seleção; sem segunda avaliação das mesmas fontes.',
+                  file=sys.stderr, flush=True)
+            return selection['cobertura_componentes']
         selected = {eid: items[eid] for eid in selection['selecionadas']}
         if not selected:
             return {}

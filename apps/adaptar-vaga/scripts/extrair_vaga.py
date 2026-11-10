@@ -156,6 +156,23 @@ def api_model_limits(model):
     return limits
 
 
+def api_error_details(error, details=None):
+    """Expose error identifiers only, never echoed prompts or credentials."""
+    if details is None:
+        try:
+            details = json.loads(read_limited(error))
+        except (ValueError, AttributeError, ExtractionError, OSError):
+            details = {}
+    details = details.get('error', {}) if isinstance(details, dict) else {}
+    fields = []
+    for field in ('type', 'code', 'param'):
+        value = details.get(field) if isinstance(details, dict) else None
+        if (isinstance(value, str) and len(value) <= 160
+                and re.fullmatch(r'[A-Za-z0-9_.\[\]-]+', value) and not value.startswith('sk-')):
+            fields.append(field + '=' + value)
+    return ' (' + ', '.join(fields) + ')' if fields else ''
+
+
 def prepare_api_payload(payload, key, name, timeout=90):
     """Conta a entrada real e reserva toda a saída, incluindo raciocínio.
 
@@ -177,15 +194,17 @@ def prepare_api_payload(payload, key, name, timeout=90):
         # Alguns modelos podem recusar a própria contagem de uma entrada maior
         # que a janela. Só esse código autoriza reduzir o lote; cota, autenticação
         # e outros HTTPs continuam sendo falhas, sem novas tentativas de geração.
+        try:
+            details = json.loads(read_limited(error))
+            code = details.get('error', {}).get('code')
+        except (ValueError, AttributeError, ExtractionError):
+            details, code = {}, None
         if error.code == 400:
-            try:
-                code = json.loads(read_limited(error)).get('error', {}).get('code')
-            except (ValueError, AttributeError, ExtractionError):
-                code = None
             if code == 'context_length_exceeded':
                 raise TokenBudgetError(f'{name}: a contagem foi recusada por excesso de contexto; '
                                        'nenhum conteúdo truncado e nenhuma geração iniciada.') from None
-        raise ExtractionError(f'Contagem de tokens ({name}): API retornou HTTP {error.code}; '
+        raise ExtractionError(f'Contagem de tokens ({name}): API retornou HTTP {error.code}'
+                              + api_error_details(error, details) + '; '
                               'nenhuma geração iniciada.') from None
     except (URLError, TimeoutError, ConnectionError, ValueError, AttributeError) as error:
         raise ExtractionError(f'Contagem de tokens ({name}) indisponível '

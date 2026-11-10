@@ -232,6 +232,23 @@ def build(data, config, base, output, template, approved=False, review_after=Fal
         temp.unlink(missing_ok=True)
     return warnings
 
+def build_or_resume(data, config, base, output, template, approved=False, review_after=False,
+                    resume=False, overwrite=False):
+    """Reuse a complete, identical DOCX when only PDF conversion was interrupted."""
+    output = Path(output)
+    if not output.exists() or overwrite:
+        return build(data, config, base, output, template, approved, review_after), False
+    if not resume:
+        raise ValueError('Saída já existe. Use outro nome ou --sobrescrever.')
+    with tempfile.TemporaryDirectory(prefix='cv-verificar-docx-') as temp:
+        expected = Path(temp)/'esperado.docx'
+        warnings = build(data, config, base, expected, template, approved, review_after)
+        with zipfile.ZipFile(expected) as new, zipfile.ZipFile(output) as old:
+            if (new.namelist() != old.namelist()
+                    or any(new.read(name) != old.read(name) for name in new.namelist())):
+                raise ValueError('DOCX existente difere do conteúdo validado; retomada não sobrescreve documentos.')
+    return warnings, True
+
 def resolve_converter():
     """Usa o LibreOffice do mesmo runtime do Python, sem depender da skill."""
     python_root = Path(sys.executable).parent.parent
@@ -295,11 +312,13 @@ def main():
     parser.add_argument('--aprovado', action='store_true', help='Confirma que Alex já revisou o conteúdo.')
     parser.add_argument('--revisao-posterior', action='store_true', help='Gera documentos embedding para revisão humana posterior, sem registrar aprovação.')
     parser.add_argument('--sobrescrever', action='store_true')
+    parser.add_argument('--retomar', action='store_true', help='Reutiliza DOCX idêntico para concluir PDF interrompido.')
     parser.add_argument('--pdf', action='store_true', help='Gera também PDF com mesmo nome e pasta do DOCX, sem API.')
     args = parser.parse_args()
     try:
         if args.saida.suffix.lower() != '.docx': raise ValueError('A saída desta etapa deve ser .docx.')
-        if args.saida.exists() and not args.sobrescrever: raise ValueError('Saída já existe. Use outro nome ou --sobrescrever.')
+        if args.saida.exists() and not (args.sobrescrever or args.retomar):
+            raise ValueError('Saída já existe. Use outro nome ou --sobrescrever.')
         if args.saida.resolve() in {args.entrada.resolve(), args.config.resolve(), args.base.resolve()}:
             raise ValueError('A saída não pode sobrescrever um arquivo de entrada.')
         if args.pdf and args.saida.with_suffix('.pdf').exists() and not args.sobrescrever:
@@ -326,8 +345,9 @@ def main():
             writing.validate_redundancy(link['experiencias'], config)
         data.update(idioma_cv=job['idioma_cv'], cargo_alvo=clean(job['nome_vaga']),
                     competencias=job['competencias'], ferramentas=job['ferramentas'])
-        warnings = build(data, config, base, args.saida, template, args.aprovado, args.revisao_posterior)
-        print(f'DOCX gerado: {args.saida.resolve()}')
+        warnings, reused = build_or_resume(data, config, base, args.saida, template,
+            args.aprovado, args.revisao_posterior, resume=args.retomar, overwrite=args.sobrescrever)
+        print(f'DOCX {"reutilizado" if reused else "gerado"}: {args.saida.resolve()}')
         for warning in warnings: print('Pendência: ' + warning, file=sys.stderr)
         if args.pdf:
             try:

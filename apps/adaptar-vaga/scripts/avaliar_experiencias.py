@@ -67,7 +67,8 @@ def token_batches(values, maximum=BATCH_SIZE):
 
 class ResumeResponses:
     """Checkpoint temporário por candidatura; nunca contém chave da API."""
-    def __init__(self, folder, base, job, rules, model, backend='api'):
+    def __init__(self, folder, base, job, rules, model, backend='api', *, stage=None):
+        self.stage = stage
         code_names = ['avaliar_experiencias.py', 'redigir_curriculo.py', 'criar_curriculo.py']
         api_budget = {}
         if backend == 'api' or backend.startswith('api-embedding:'):
@@ -84,6 +85,12 @@ class ResumeResponses:
                             'backend': backend, 'orcamento_api': api_budget,
                             'codigo': {name: hashlib.sha256((ROOT/'scripts'/name).read_bytes()).hexdigest()
                                        for name in code_names}})
+        if stage is not None:
+            # Requests carry their complete inputs and contracts. Unrelated code
+            # edits must not erase a stage's responses or renew its retry budget.
+            identity = version({'contrato_retomada': 2, 'etapa': stage,
+                'pasta': str(Path(folder).resolve()), 'base': version(base),
+                'vaga': version(job), 'modelo': model, 'backend': backend.split(':', 1)[0]})
         directory = Path(tempfile.gettempdir())/'adaptar-vaga-retomada'
         directory.mkdir(mode=0o700, exist_ok=True)
         if directory.is_symlink() or directory.stat().st_uid != os.getuid():
@@ -91,7 +98,9 @@ class ResumeResponses:
         directory.chmod(0o700)
         self.path = directory/(identity + '.sqlite3')
         # Lock separado: no macOS flock no próprio SQLite conflita com os locks do banco.
-        self.fd = os.open(str(self.path) + '.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+        lock_path = (directory / (version({'pasta': str(Path(folder).resolve())}) + '.lock')
+                     if stage is not None else Path(str(self.path) + '.lock'))
+        self.fd = os.open(lock_path, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
         if os.fstat(self.fd).st_uid != os.getuid():
             os.close(self.fd)
             raise ValueError('Checkpoint temporário inseguro.')
@@ -136,7 +145,8 @@ class ResumeResponses:
     @staticmethod
     def response_key(data, instructions, schema, name, model):
         return version({'dados': data, 'instrucoes': instructions, 'schema': schema,
-                        'nome': name, 'modelo': model})
+                        'nome': name, 'modelo': model,
+                        'raciocinio': effective_reasoning(model, name)})
 
     def caller(self, delegate):
         def call(data, instructions, schema, name, model, key):
@@ -160,7 +170,7 @@ class ResumeResponses:
 
     def close(self, failed=False, complete=False):
         # Uma resposta que falhou na validação posterior não deve envenenar a retomada.
-        if failed and self.last:
+        if failed and self.last and self.stage is None:
             self.db.execute('DELETE FROM respostas WHERE id=?', (self.last,))
             self.db.commit()
         self.db.close()
@@ -222,26 +232,119 @@ def validate(value, schema):
         raise ValueError('Texto vazio na resposta.')
 
 
+def compact_schema_enums(schema):
+    """Compartilha enums repetidos só no transporte; contrato local fica intacto."""
+    counts = {}
+
+    def enum_key(node):
+        if (isinstance(node, dict) and isinstance(node.get('enum'), list)
+                and (node.get('type') in ('string', 'integer', 'number', 'boolean')
+                     or isinstance(node.get('type'), list))):
+            return json.dumps(node, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+        return None
+
+    def collect(node):
+        token = enum_key(node)
+        if token is not None:
+            counts[token] = counts.get(token, 0) + 1
+        elif isinstance(node, dict):
+            for child in node.values():
+                collect(child)
+        elif isinstance(node, list):
+            for child in node:
+                collect(child)
+
+    collect(schema)
+    names, reserved = {}, set(schema.get('$defs', {}))
+    for token, count in counts.items():
+        if count < 2:
+            continue
+        number = len(names) + 1
+        while f'cv_enum_{number}' in reserved:
+            number += 1
+        name = f'cv_enum_{number}'
+        names[token] = name
+        reserved.add(name)
+    if not names:
+        return schema
+
+    def replace(node):
+        token = enum_key(node)
+        if token in names:
+            return {'$ref': '#/$defs/' + names[token]}
+        if isinstance(node, dict):
+            return {field: replace(child) for field, child in node.items()}
+        if isinstance(node, list):
+            return [replace(child) for child in node]
+        return node
+
+    compact = replace(schema)
+    compact.setdefault('$defs', {}).update({name: json.loads(token) for token, name in names.items()})
+    return compact
+
+
+def validate_api_schema(schema):
+    """Preflight the documented transport limits before any network request."""
+    counts = Counter()
+    def walk(node):
+        if isinstance(node, dict):
+            values = node.get('enum', [])
+            counts['enum'] += len(values)
+            counts['properties'] += len(node.get('properties', {}))
+            counts['characters'] += sum(len(str(x)) for x in values)
+            counts['characters'] += sum(len(x) for x in node.get('properties', {}))
+            counts['characters'] += sum(len(x) for x in node.get('$defs', {}))
+            if 'const' in node:
+                counts['characters'] += len(str(node['const']))
+            if len(values) > 250 and sum(len(x) for x in values if isinstance(x, str)) > 15000:
+                raise ValueError('Formato API: enum individual excede 15.000 caracteres; nenhuma chamada iniciada.')
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+    walk(schema)
+    if counts['enum'] > 1000 or counts['characters'] > 120000 or counts['properties'] > 5000:
+        raise ValueError(f'Formato API excede os limites documentados: {dict(counts)}; nenhuma chamada iniciada.')
+
+
+def effective_reasoning(model, name, explicit=None):
+    if explicit is None and not model.startswith('gpt-6') and model != os.environ.get('OPENAI_MATCHING_MODEL'):
+        return None
+    effort = explicit or os.environ.get(
+        'OPENAI_REASONING_EFFORT' if name == 'redacao_curriculo' else 'OPENAI_MATCHING_REASONING_EFFORT',
+        os.environ.get('OPENAI_REASONING_EFFORT', 'medium'))
+    if effort not in {'low', 'medium', 'high', 'xhigh', 'max'}:
+        raise ValueError('Esforço de raciocínio inválido.')
+    return effort
+
+
+class GenerationNotStarted(ValueError):
+    """Preflight failed before any generation request was sent."""
+
+
 def model_json(data, instructions, schema, name, model, key, telemetry=None, reasoning_effort=None):
     if not key:
-        raise ValueError('Configure a chave no aplicativo existente.')
+        raise GenerationNotStarted('Configure a chave no aplicativo existente.')
+    transport_schema = compact_schema_enums(schema)
+    try:
+        validate_api_schema(transport_schema)
+    except ValueError as error:
+        raise GenerationNotStarted(str(error)) from None
     payload = {'model': model, 'store': False, 'instructions': instructions,
                'input': json.dumps(data, ensure_ascii=False),
                'text': {'format': {'type': 'json_schema', 'name': name,
-                                   'strict': True, 'schema': schema}}}
-    if reasoning_effort is not None or model.startswith('gpt-6') or model == os.environ.get('OPENAI_MATCHING_MODEL'):
-        effort = reasoning_effort or os.environ.get(
-            'OPENAI_REASONING_EFFORT' if name == 'redacao_curriculo' else 'OPENAI_MATCHING_REASONING_EFFORT',
-            os.environ.get('OPENAI_REASONING_EFFORT', 'medium'))
-        if effort not in {'low', 'medium', 'high', 'xhigh', 'max'}:
-            raise ValueError('Esforço de raciocínio inválido.')
+                                   'strict': True, 'schema': transport_schema}}}
+    effort = effective_reasoning(model, name, reasoning_effort)
+    if effort is not None:
         payload['reasoning'] = {'effort': effort}
+    total_started = time.monotonic()
     try:
         payload = extrair_vaga.prepare_api_payload(payload, key, name)
     except extrair_vaga.TokenBudgetError:
         raise
     except extrair_vaga.ExtractionError as error:
-        raise ValueError(str(error)) from None
+        raise GenerationNotStarted(str(error)) from None
     request = Request(extrair_vaga.API_URL, data=json.dumps(payload).encode(),
                       headers={'Authorization': 'Bearer ' + key,
                                'Content-Type': 'application/json'})
@@ -251,12 +354,18 @@ def model_json(data, instructions, schema, name, model, key, telemetry=None, rea
         with urlopen(request, timeout=300) as response:
             result = json.loads(extrair_vaga.read_limited(response))
     except HTTPError as error:
-        raise ValueError(f'API retornou HTTP {error.code}; nenhum resultado parcial salvo.') from None
+        raise ValueError(f'API ({name}) retornou HTTP {error.code}'
+                         + extrair_vaga.api_error_details(error) + '; resposta não salva.') from None
     except (URLError, TimeoutError, ConnectionError) as error:
         reason = getattr(error, 'reason', error)
         raise ValueError(f'Falha na API ({name}): {type(reason).__name__}; '
                          'a resposta desta chamada não foi salva; consulte o checkpoint para retomar.') from None
     finally:
+        usage = result.get('usage', {}) if isinstance(result, dict) else {}
+        print(f'Chamada API | {name} | total={time.monotonic() - total_started:.2f}s | '
+              f'geração={time.monotonic() - started:.2f}s | entrada={usage.get("input_tokens", "n/d")} | '
+              f'saída={usage.get("output_tokens", "n/d")} | status='
+              f'{result.get("status") if isinstance(result, dict) else "falha"}', file=sys.stderr, flush=True)
         if telemetry is not None:
             telemetry({'elapsed_seconds': time.monotonic() - started,
                        'status': result.get('status') if isinstance(result, dict) else None,
@@ -1197,7 +1306,9 @@ def run(folder, model, key, caller=model_json, diagnostics=None):
     job = load(folder/'requisitos-vaga.json')
     reqs = requirements(job, rules)
     base = load(ROOT/'base/curriculo_base.json')
-    checkpoint = ResumeResponses(folder, base, job, rules, model, getattr(caller, 'backend', 'api'))
+    backend = getattr(caller, 'backend', 'api')
+    checkpoint = ResumeResponses(folder, base, job, rules, model, backend,
+                                 stage='matching_embedding' if backend.startswith('api-embedding:') else None)
     try:
         result = _run(folder, model, key, checkpoint.caller(caller), diagnostics, checkpoint,
                       rules, base, job, reqs, retriever=getattr(caller, 'retrieve', None),
@@ -1209,7 +1320,7 @@ def run(folder, model, key, caller=model_json, diagnostics=None):
     except BaseException:
         checkpoint.close(failed=True)
         raise
-    checkpoint.close()
+    checkpoint.close(complete=checkpoint.stage == 'matching_embedding')
     return result
 
 

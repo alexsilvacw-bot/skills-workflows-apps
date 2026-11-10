@@ -126,6 +126,7 @@ def main(argv=None, caller_override=None, editorial_policy=None):
             command.append('--aprovado')
         if review_after:
             command.append('--revisao-posterior')
+            command.append('--retomar')
             print('Revisão factual pendente: Word/PDF serão gerados para conferência humana posterior.')
         command.append('--pdf')
         return subprocess.run(command, env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1')).returncode
