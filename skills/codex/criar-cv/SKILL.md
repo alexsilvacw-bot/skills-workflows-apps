@@ -1,6 +1,6 @@
 ---
 name: criar-cv
-description: Cria ou retoma currículos de Alex Floriano no projeto Adaptar Vaga, a partir de link ou texto de vaga, até DOCX e PDF. Coordena extração, matching, redação, validação e montagem pelos scripts existentes. Não se aplica a avaliações genéricas ou alterações da base.
+description: Cria ou retoma currículos de Alex Floriano no projeto Adaptar Vaga, a partir de link ou texto de vaga, com entrega em PDF. Coordena extração, matching, redação, validação e montagem pelos scripts existentes. Não se aplica a avaliações genéricas ou alterações da base.
 ---
 
 # Criar CV
@@ -20,7 +20,7 @@ Consulte somente os blocos necessários à etapa. Os valores e contratos vigente
 | `scripts/extrair_vaga.py` | Prompt, schema, classificação, prioridades e validações da extração, incluindo o tratamento corretivo previsto. |
 | `scripts/avaliar_experiencias.py` | Recuperação, avaliação, deduplicação, seleção, validação do índice e checkpoint de retomada. |
 | `scripts/redigir_curriculo.py` | Resposta de redação, consolidação, referências, validações e feedback de retomada. |
-| `scripts/montar_curriculo.py` | Validação da entrada, resolução das fontes, preenchimento do template e exportação de Word/PDF. |
+| `scripts/montar_curriculo.py` | Validação da entrada, resolução das fontes, preenchimento do template e exportação do PDF a partir do DOCX. |
 
 Use os componentes existentes. Uma divergência entre instruções, configuração e implementação deve ser identificada e informada; não invente uma regra para contorná-la.
 
@@ -99,7 +99,7 @@ Resolver os IDs selecionados na base. Aplicar as regras de ATS, idioma e redaç�
 Gerar `dados-reescritos.json` conforme `montagem_curriculo.contrato_entrada` e os validadores. Resolver nomes de empresas, datas e demais dados fixos nas fontes durante a montagem, sem criar cópias adicionais na redação.
 
 Aplicar `montagem_curriculo.validacao_humana` e as regras de lacunas:
-- Com seleção suficiente e nenhuma proposta pendente, continuar automaticamente para Word e PDF depois da validação.
+- Com seleção suficiente e nenhuma proposta pendente, continuar automaticamente para gerar o PDF depois da validação.
 - Abaixo da meta, apresentar o rascunho com propostas separadas, ainda não aprovadas, limitadas ao déficit de experiências.
 - Com a meta atingida, lacunas de quaisquer requisitos não exigem proposta nem aprovação.
 - Aguardar decisão de Alex somente sobre a confirmação e inclusão das propostas. Não tratar silêncio como confirmação nem inserir hipótese como fato.
@@ -107,19 +107,23 @@ Aplicar `montagem_curriculo.validacao_humana` e as regras de lacunas:
 
 ## 5. Montar, conferir e entregar
 
-O orquestrador chama `scripts/montar_curriculo.py` quando o conteúdo está apto. Para montagem direta de uma candidatura com redação válida, seleção suficiente e nenhuma proposta pendente, ou com complementação já aprovada e incluída validamente:
+O PDF é o único documento final. Gerar um DOCX somente quando o montador exigir esse arquivo para converter em PDF. O montador atual usa o template do projeto para criar esse intermediário e exporta o PDF na mesma pasta.
+
+O orquestrador chama `scripts/montar_curriculo.py` quando o conteúdo está apto e grava os dois arquivos na pasta da candidatura. Após conferir o PDF, apagar somente o DOCX gerado para essa conversão, identificando-o pela saída do montador. Em retomadas, preservar DOCX preexistentes, salvo se houver registro de que são intermediários dessa mesma execução.
+
+Para montagem direta com redação válida, seleção suficiente e nenhuma proposta pendente, ou com complementação já aprovada e incluída validamente, criar um diretório temporário do sistema e executar:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /Users/alex/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 '/Users/alex/Documents/Adaptar Vaga/scripts/montar_curriculo.py' --entrada '<PASTA_ATUAL>/dados-reescritos.json' --saida '<PASTA_ATUAL>/<NOME_RESOLVIDO_PELA_CONFIGURACAO>.docx' --pdf
+PYTHONDONTWRITEBYTECODE=1 /Users/alex/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 '/Users/alex/Documents/Adaptar Vaga/scripts/montar_curriculo.py' --entrada '<PASTA_ATUAL>/dados-reescritos.json' --saida '<DIRETORIO_TEMPORARIO>/<NOME_RESOLVIDO_PELA_CONFIGURACAO>.docx' --pdf
 ```
 
-Usar `--aprovado` somente para registrar uma decisão humana efetivamente dada. Não sobrescrever documentos sem autorização.
+Usar `--aprovado` somente para registrar uma decisão humana efetivamente dada. Após conferir a exportação, mover o PDF para a pasta da candidatura e remover o diretório temporário. Não sobrescrever documentos sem autorização.
 
-Gerar sempre Word e PDF. Resolver o nome pelo bloco `montagem_curriculo.nome_arquivo` de `config/configuracao.json`, com empresa e cargo de `requisitos-vaga.json`, usando a função `document_stem` do orquestrador. O PDF usa o mesmo nome do Word. Nome solicitado por Alex ou pelo formulário substitui o padrão, sem cópia adicional. Na montagem, consultar o JSON de redação, as fontes para resolver dados, a configuração e o template. Copiar os blocos fixos; não reescrever, traduzir, chamar a API ou recalcular o matching nessa etapa.
+Resolver o nome pelo bloco `montagem_curriculo.nome_arquivo` de `config/configuracao.json`, com empresa e cargo de `requisitos-vaga.json`, usando a função `document_stem` do orquestrador. Nome solicitado por Alex ou pelo formulário substitui o padrão, sem cópia adicional. Na montagem, consultar o JSON de redação, as fontes para resolver dados, a configuração e o template. Copiar os blocos fixos; não reescrever, traduzir, chamar a API ou recalcular o matching nessa etapa.
 
-Conferir versões da base e da vaga, referências, texto extraível e todas as páginas. Manter temporários de revisão fora do projeto. Se a exportação de PDF falhar, preservar o DOCX.
+Conferir versões da base e da vaga, referências, texto extraível e todas as páginas. Manter temporários de revisão fora do projeto. Se a exportação falhar, informar a falha e manter o intermediário apenas enquanto for necessário para retomar a conversão.
 
-Entregar os links dos documentos, a pasta atual e as pendências reais. Distinguir validação estrutural, conferência semântica, revisão visual e execução real.
+Entregar o link do PDF, a pasta atual e as pendências reais. Distinguir validação estrutural, conferência semântica, revisão visual e execução real.
 
 ## Falhas e retomada
 
