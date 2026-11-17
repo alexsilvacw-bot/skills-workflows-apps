@@ -1,6 +1,6 @@
 ---
 name: criar-cv-embedding
-description: Cria ou retoma CVs no Adaptar Vaga com API e recuperação local por text-embedding-3-large. Use quando Alex escolher criar-cv-embedding; usa avaliação fundamentada, identidades do índice e seleção por ganho marginal, preservando a escala, a redação e Word/PDF.
+description: Cria ou retoma CVs no Adaptar Vaga com API, recuperação local por text-embedding-3-large e entrega em PDF. Use quando Alex escolher criar-cv-embedding para avaliação fundamentada e seleção por ganho marginal, com as identidades do índice e a escala de pontuação vigentes.
 ---
 
 # Criar CV Embedding
@@ -49,7 +49,7 @@ Consulte somente os blocos necessários à etapa. Os valores e contratos vigente
 | `scripts/matching_embedding.py` | Fundamentos com notas fixas, identidades determinísticas e seleção por relevância e diversidade, exclusivos desta variante. |
 | `scripts/criar_curriculo_embedding.py` | Entrada explícita desta variante e preparação separada dos embeddings. |
 | `scripts/redigir_curriculo.py` | Resposta de redação, consolidação, referências, validações e feedback de retomada. |
-| `scripts/montar_curriculo.py` | Validação da entrada, resolução das fontes, preenchimento do template e exportação de Word/PDF. |
+| `scripts/montar_curriculo.py` | Validação da entrada, resolução das fontes, preenchimento do template e exportação do PDF a partir do DOCX. |
 
 Use os componentes existentes. Uma divergência entre instruções, configuração e implementação deve ser identificada e informada; não invente uma regra para contorná-la.
 
@@ -65,7 +65,7 @@ Executar no diretório do projeto com `PYTHONDONTWRITEBYTECODE=1`. Para autentic
 
 ### Esforço de raciocínio nas etapas com Luna
 
-Usar `high` no matching e na redação quando o modelo efetivo for `gpt-6-luna`. Isso inclui a fundamentação e a revisão da seleção, a revisão de alinhamento antes dos documentos e as correções lexicais ou técnicas. Usar `medium` na conferência final de Word e PDF quando ela for feita com Luna e o ambiente permitir configurar o esforço dessa tarefa. A montagem e a conversão são locais e independem de esforço de raciocínio.
+Usar `high` no matching e na redação quando o modelo efetivo for `gpt-6-luna`. Isso inclui a fundamentação e a revisão da seleção, a revisão de alinhamento antes dos documentos e as correções lexicais ou técnicas. Usar `medium` na conferência final do PDF quando ela for feita com Luna e o ambiente permitir configurar o esforço dessa tarefa. A montagem e a conversão são locais e independem de esforço de raciocínio.
 
 Configurar a variável específica de cada etapa antes de iniciar ou retomar a candidatura, conforme o modelo efetivamente resolvido pelos scripts:
 
@@ -150,23 +150,27 @@ O validador deve preservar os valores numéricos e percentuais das fontes seleci
 
 A normalização numérica serve à comparação interna, não à apresentação. Exibir milhões por extenso conforme o idioma: `R$ 6,8 milhões` em português e `BRL 6.8 million` em inglês. Preservar valor exato, moeda e qualificadores, sem arredondamento ou sequências extensas de zeros. O formatador local atua antes da validação final e da revisão semântica; não altera trechos originais usados como fonte.
 
-Gerar `dados-reescritos.json` com `revisao_editorial.status=pendente`, referências e trechos dos acréscimos para revisão, sem artefato adicional. Acréscimos no resumo usam `id_fonte=null` com citação literal do resumo final; não substituir essa citação pelo texto de uma experiência. Os IDs comprovam a origem do relato, não a veracidade dos acréscimos. Pendências são informadas na entrega e não geram perguntas ou aprovação anterior. A revisão factual final será manual, após a geração de Word/PDF. Não marcar `aprovado_por_usuario` como verdadeiro sem decisão humana.
+Gerar `dados-reescritos.json` com `revisao_editorial.status=pendente`, referências e trechos dos acréscimos para revisão, sem artefato adicional. Acréscimos no resumo usam `id_fonte=null` com citação literal do resumo final; não substituir essa citação pelo texto de uma experiência. Os IDs comprovam a origem do relato, não a veracidade dos acréscimos. Pendências são informadas na entrega e não geram perguntas ou aprovação anterior. A revisão factual final será manual, após a geração do PDF. Não marcar `aprovado_por_usuario` como verdadeiro sem decisão humana.
 
 ## 5. Montar, conferir e entregar
 
-O orquestrador chama `scripts/montar_curriculo.py` quando o conteúdo está apto. Para montagem direta de uma candidatura desta variante com redação válida e `revisao_editorial.modo=embedding`:
+O PDF é o único documento final do currículo. Gerar DOCX somente quando for necessário para a conversão. O montador atual cria esse intermediário a partir do template do projeto e exporta o PDF na mesma pasta.
+
+Quando o conteúdo está apto, o orquestrador chama `scripts/montar_curriculo.py` e grava ambos os arquivos na pasta da candidatura. Após conferir o PDF, apagar somente o DOCX identificado como intermediário dessa conversão. Na retomada, preservar DOCX preexistentes cuja origem como intermediário da mesma execução não esteja registrada.
+
+Para montagem direta com redação válida e `revisao_editorial.modo=embedding`, criar um diretório temporário do sistema e executar:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /Users/alex/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 '/Users/alex/Documents/Adaptar Vaga/scripts/montar_curriculo.py' --entrada '<PASTA_ATUAL>/dados-reescritos.json' --saida '<PASTA_ATUAL>/<NOME_RESOLVIDO_PELA_CONFIGURACAO>.docx' --pdf --revisao-posterior
+PYTHONDONTWRITEBYTECODE=1 /Users/alex/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 '/Users/alex/Documents/Adaptar Vaga/scripts/montar_curriculo.py' --entrada '<PASTA_ATUAL>/dados-reescritos.json' --saida '<DIRETORIO_TEMPORARIO>/<NOME_RESOLVIDO_PELA_CONFIGURACAO>.docx' --pdf --revisao-posterior
 ```
 
-Usar `--aprovado` somente para registrar uma decisão humana efetivamente dada. Não sobrescrever documentos sem autorização.
+Usar `--aprovado` somente para registrar uma decisão humana efetivamente dada. Após conferir o PDF, mover o arquivo para a pasta da candidatura e remover o diretório temporário. Não sobrescrever documentos sem autorização.
 
-Gerar sempre Word e PDF. Resolver o nome pelo bloco `montagem_curriculo.nome_arquivo` de `config/configuracao.json`, com empresa e cargo de `requisitos-vaga.json`, usando a função `document_stem` do orquestrador. O PDF usa o mesmo nome do Word. Nome solicitado por Alex ou pelo formulário substitui o padrão, sem cópia adicional. Na montagem, consultar o JSON de redação, as fontes para resolver dados, a configuração e o template. Copiar os blocos fixos; não reescrever, traduzir, chamar a API ou recalcular o matching nessa etapa.
+Resolver o nome pelo bloco `montagem_curriculo.nome_arquivo` de `config/configuracao.json`, com empresa e cargo de `requisitos-vaga.json`, usando a função `document_stem` do orquestrador. Nome solicitado por Alex ou pelo formulário substitui o padrão, sem cópia adicional. Na montagem, consultar o JSON de redação, as fontes para resolver dados, a configuração e o template. Copiar os blocos fixos; não reescrever, traduzir, chamar a API ou recalcular o matching nessa etapa.
 
-Conferir versões da base e da vaga, referências, texto extraível e todas as páginas. Manter temporários de revisão fora do projeto. Se a exportação de PDF falhar, preservar o DOCX. A retomada pelo orquestrador compara todas as partes do Word existente com a montagem esperada e conclui somente o PDF quando forem idênticas. Na montagem direta, usar `--retomar` para esse caso; diferenças permanecem bloqueadas, sem sobrescrita.
+Conferir versões da base e da vaga, referências, texto extraível e todas as páginas. Manter temporários de revisão fora do projeto. Se a exportação falhar, informar a falha e manter o intermediário apenas enquanto necessário para retomar a conversão. O orquestrador compara todas as partes do DOCX existente com a montagem esperada e conclui a exportação quando forem idênticas. Na montagem direta, usar o mesmo caminho temporário e adicionar `--retomar` para esse caso; diferenças permanecem bloqueadas, sem sobrescrita.
 
-Entregar os links dos documentos, a pasta atual e as pendências reais, indicando revisão factual humana pendente e onde os acréscimos estão registrados no JSON. Distinguir validação estrutural, conferência semântica, revisão visual e execução real.
+Entregar o link do PDF, a pasta atual e as pendências reais, indicando revisão factual humana pendente e onde os acréscimos estão registrados no JSON. Distinguir validação estrutural, conferência semântica, revisão visual e execução real.
 
 ## Falhas e retomada
 
