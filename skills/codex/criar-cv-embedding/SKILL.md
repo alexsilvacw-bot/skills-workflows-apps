@@ -63,6 +63,18 @@ Executar pelo mecanismo normal de permissões do Codex, sem solicitar nova confi
 
 Executar no diretório do projeto com `PYTHONDONTWRITEBYTECODE=1`. Para autenticação, reutilizar `OPENAI_API_KEY` ou `interface_vagas.get_key()` dentro do processo existente. Não carregar a credencial no contexto do agente. Sem chave, orientar configuração no aplicativo existente, sem criar arquivos de segredo.
 
+### Esforço de raciocínio nas etapas com Luna
+
+Usar `high` no matching e na redação quando o modelo efetivo for `gpt-6-luna`. Isso inclui a fundamentação e a revisão da seleção, a revisão de alinhamento antes dos documentos e as correções lexicais ou técnicas. Usar `medium` na conferência final de Word e PDF quando ela for feita com Luna e o ambiente permitir configurar o esforço dessa tarefa. A montagem e a conversão são locais e independem de esforço de raciocínio.
+
+Configurar a variável específica de cada etapa antes de iniciar ou retomar a candidatura, conforme o modelo efetivamente resolvido pelos scripts:
+
+- Para a redação inicial com Luna, usar `OPENAI_REASONING_EFFORT=high`.
+- Para matching, fundamentação, revisão da seleção, revisão de alinhamento e correções com Luna, usar `OPENAI_MATCHING_REASONING_EFFORT=high`.
+- Na extração com Luna, continuar usando `OPENAI_EXTRACTION_REASONING_EFFORT=high`.
+
+Antes de ajustar uma variável compartilhada, conferir o esforço efetivo das etapas que usam outros modelos, inclusive o valor de fallback da extração. Preservar esses valores com as variáveis específicas quando disponíveis. Nas retomadas, reutilizar o esforço efetivo do matching e da redação para manter a compatibilidade do checkpoint.
+
 ## 1. Iniciar ou retomar
 
 Se Alex fornecer uma nova vaga, usar o link ou o texto completo. Se a entrada estiver ausente, pedi-la. Se esta mesma candidatura já tiver sido extraída na sessão, continuar sua pasta atual.
