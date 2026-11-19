@@ -1,0 +1,337 @@
+{
+  "matching": {
+    "escopo": "Avaliar as experiências já existentes no JSON da base contra os requisitos obrigatórios e desejáveis da vaga. Gerar notas e seleção por IDs, sem alterar, reescrever ou criar experiências. Competências e ferramentas vêm do JSON da vaga e não participam do matching.",
+    "escala": {
+      "minimo": 1,
+      "maximo": 5,
+      "significados": {
+        "1": "Não atende",
+        "2": "Atende pouco",
+        "3": "Atende bem",
+        "4": "Atende muito bem",
+        "5": "Atende perfeitamente"
+      },
+      "criterios": {
+        "1": "A experiência não atende aos requisitos e os conceitos e práticas envolvidos para aprender ou ter essa experiência não podem ser usados para atender ao requisito.",
+        "2": "A experiência não atende aos requisitos, mas os conceitos e práticas envolvidos para aprender ou ter essa experiência podem ser usados para atender ao requisito parcialmente.",
+        "3": "A experiência atende parcialmente aos requisitos e os conceitos e práticas envolvidos para aprender ou ter essa experiência podem ser usados para atender ao requisito parcialmente.",
+        "4": "A experiência atende parcialmente aos requisitos, mas os conceitos e práticas envolvidos para aprender ou ter essa experiência podem facilmente ser usados para atender ao requisito. Os conceitos e práticas centrais já são dominados. A diferença exige adaptação de contexto ou aplicação, sem aprender uma competência central nova. Falta do conhecimento principal exigido impede score 4.",
+        "5": "A experiência atende aos requisitos quase perfeitamente, com pouquíssimas diferenças relevantes. Os elementos centrais da exigência já são atendidos. São permitidas somente diferenças pequenas de aplicação ou contexto; uma diferença decisiva impede score 5."
+      }
+    },
+    "requisitos": {
+      "tipos": [
+        "obrigatorio",
+        "desejavel"
+      ],
+      "prefixos_id": {
+        "obrigatorio": "O",
+        "desejavel": "D"
+      },
+      "preservar_texto_e_idioma_original": true,
+      "cobrir_todos_os_requisitos_recebidos": true,
+      "acrescentar_requisitos_ausentes_no_json": false,
+      "compostos": {
+        "preservar_requisito_original": true,
+        "avaliar_componentes_sem_aumentar_exigencias": true,
+        "somar_evidencias_para_fabricar_nota_5": false,
+        "nota_5_exige_elementos_centrais_atendidos_por_evidencia_individual": true,
+        "diferencas_pequenas_de_contexto_ou_aplicacao_compativeis_com_nota_5": true
+      },
+      "excluir_mesmo_se_exigidos_na_vaga": [
+        "idioma",
+        "disponibilidade_para_viagens",
+        "formacao_academica"
+      ]
+    },
+    "evidencias": {
+      "tipos": [
+        "experiencia",
+        "formacao",
+        "idioma"
+      ],
+      "relacionar_por_id": true,
+      "ids_devem_resolver_na_versao_da_base_utilizada": true,
+      "preservar_texto_empresa_e_cargo_originais": true,
+      "inferir_empresa_ausente": false,
+      "reescrever_traduzir_ou_combinar_textos_no_matching": false,
+      "nota_mede": "atendimento_pela_experiencia_e_transferibilidade_de_conceitos_e_praticas",
+      "nota_comprova_verdade_factual": false,
+      "estado_factual_independente_da_nota": true,
+      "usar_afirmacao_negada_hipotetica_ou_em_conflito_material_na_selecao": false,
+      "alterar_json_da_base": false,
+      "criar_experiencias_hipoteticas_no_matching": false,
+      "inferir_formacao_idioma_proficiencia_ownership_ou_especializacao": false,
+      "identificadores": {
+        "tipo": "id_persistente_gravado_no_item_da_base",
+        "derivar_id_da_posicao_no_array": false,
+        "regenerar_ids_ao_reordenar_ou_incluir_itens": false,
+        "validar_referencia": "verificar_id_e_versao_da_base",
+        "campo_vinculo": "experiencias[].id",
+        "campo_experiencia": "experiencias[].experiencia[].id",
+        "campo_texto": "experiencias[].experiencia[].texto",
+        "script": "scripts/manutencao/atribuir_ids_base.py"
+      }
+    },
+    "pontuacao": {
+      "por_relacao": "inteiro_de_1_a_5",
+      "nota_da_experiencia": "maior_nota_individual_das_relacoes",
+      "nota_do_requisito": "maior_nota_individual_das_evidencias_avaliadas",
+      "requisito_sem_evidencia_apos_avaliacao": 1,
+      "ausencia_de_relacao_registrada": "nao_avaliado",
+      "converter_em_percentual_de_fit_ou_aprovacao": false,
+      "requisito_sem_grupo_familia_ou_realizacao": 1
+    },
+    "deduplicacao": {
+      "executar_antes_do_limite": true,
+      "unidade": "fato_ou_realizacao_distinta",
+      "uma_versao_por_realizacao": true,
+      "considerar_variantes_de_idioma_e_nome_da_mesma_empresa": true,
+      "deduplicar_fatos_distintos_apenas_por_tema": false,
+      "familia_com_variantes_divergentes": "registrar_conflito_sem_concatenar_versoes",
+      "representante_da_familia": "primeiro_no_ranking_global",
+      "contrato_resposta": "uma_decisao_obrigatoria_por_novo_id; referencia_a_familia_existente_ou_fonte_anterior_do_lote; trechos_literais_das_fontes; nao_unir_familias_existentes_por_tema",
+      "verificacoes_locais": [
+        "uma_decisao_por_ID",
+        "trechos_literais_para_uniao_de_fontes_distintas",
+        "familia_isolada_sem_conflito_consigo_mesma",
+        "negocios_monetarios_distintos_sem_identidade_comum_separados",
+        "versoes_com_conjunto_exato_de_fatos_do_indice_agrupadas"
+      ]
+    },
+    "selecao": {
+      "notas_elegiveis": [
+        5,
+        4,
+        3
+      ],
+      "limite_experiencias": 25,
+      "escopo_limite": "global_somando_todas_as_empresas",
+      "unidade_contada": "experiencia_distinta_apos_deduplicacao",
+      "preencher_limite_sem_evidencias_elegiveis": false,
+      "cota_percentual_por_nota": null,
+      "ranking_global": [
+        {
+          "campo": "nota_da_experiencia",
+          "ordem": "decrescente"
+        },
+        {
+          "campo": "prioridade_grupo",
+          "ordem": "crescente"
+        },
+        {
+          "campo": "soma_das_notas_das_relacoes_distintas",
+          "ordem": "decrescente"
+        },
+        {
+          "campo": "id_da_experiencia",
+          "ordem": "lexicografica_crescente"
+        }
+      ],
+      "soma_utilizada_somente_para_desempate": true,
+      "limitar_antes_de_agrupar_por_empresa": true,
+      "repetir_experiencia_que_atende_varios_requisitos": false,
+      "ordem_empresas_no_resultado_matching": "prioridade_grupo_crescente_depois_maior_nota_selecionada_decrescente_depois_nome_crescente",
+      "ordem_experiencias_por_empresa": "ranking_global_das_selecionadas; nota_da_experiencia_decrescente_com_desempates_configurados",
+      "grupos_empresas": {
+        "normalizacao_nome_para_classificar": [
+          "unicode_nfc",
+          "remover_acentos",
+          "casefold",
+          "compactar_espacos"
+        ],
+        "preservar_nome_original_na_saida": true,
+        "prioritarias": {
+          "padrao_nome": ".+",
+          "prioridade": 1,
+          "limite_experiencias": null,
+          "limite_efetivo": "capacidade_restante_do_limite_global"
+        },
+        "consultoria": {
+          "nomes_normalizados": [
+            "consultoria propria",
+            "independent consulting practice",
+            "independent consulting"
+          ],
+          "prioridade": 3,
+          "limite_experiencias": 5,
+          "escopo_limite": "somando_variantes_de_nome_e_cargos"
+        },
+        "demais": {
+          "classificacao": "empresa_identificada_fora_dos_grupos_anteriores",
+          "prioridade": 4,
+          "limite_experiencias": 5,
+          "escopo_limite": "total_do_grupo_nao_por_empresa",
+          "admissao": {
+            "operador": "ou",
+            "condicoes": [
+              "nota_da_experiencia_igual_a_5",
+              "relacao_com_nota_superior_a_melhor_evidencia_prioritaria_para_o_mesmo_requisito"
+            ],
+            "comparacao": {
+              "universo_prioritario": "evidencias_elegiveis_apos_deduplicacao_antes_dos_limites",
+              "medida": "maior_nota_individual_por_requisito",
+              "exigir_requisito_em_comum": true,
+              "superior_significa": "estritamente_maior",
+              "sem_evidencia_prioritaria_comparavel": "admitir_somente_nota_5"
+            }
+          }
+        },
+        "empresa_ausente": {
+          "acao": "manter_pendencia_de_vinculo",
+          "inventar_ou_inferir_grupo": false
+        },
+        "secundarias": {
+          "padrao_nome": "(?!)",
+          "prioridade": 2,
+          "limite_experiencias": 10,
+          "escopo_limite": "somando_variantes_de_nome_e_cargos"
+        }
+      },
+      "prioridade_empresas_aplicada": "desempate_entre_experiencias_com_mesma_nota",
+      "procedimento": [
+        "classificar_empresas_preservando_vinculos_originais",
+        "calcular_notas_individuais_e_maximos",
+        "deduplicar_realizacoes",
+        "calcular_referencia_prioritaria_por_requisito",
+        "filtrar_notas_elegiveis_estado_factual_e_admissao_das_demais",
+        "ordenar_pelo_ranking_global",
+        "percorrer_ranking_aceitando_somente_se_houver_capacidade_global_e_do_grupo",
+        "contar_experiencias_selecionadas_3_5_e_aplicar_acionamento_da_reescrita_notas_1_2",
+        "agrupar_experiencias_selecionadas_por_empresa",
+        "referenciar_demais_vinculos_para_historico_resumido_na_etapa_de_curriculo"
+      ],
+      "ao_atingir_limite_do_grupo": "pular_candidato_e_continuar_ranking_sem_aumentar_limite",
+      "historico_resumido": {
+        "aplicar_a": "vinculos_obrigatorios_sem_realizacoes_detalhadas_selecionadas",
+        "incluir_apos_reprovacao_da_admissao_ou_exclusao_por_limite": true,
+        "duplicar_empresa_ja_detalhada": false,
+        "titulos": {
+          "en": "Earlier Experience",
+          "pt": "Experiências anteriores"
+        },
+        "formato_linha": "{empresa} | {cargo} | {periodo}",
+        "incluir_bullets_de_realizacoes": false,
+        "idioma": "idioma_cv_do_json_da_vaga",
+        "traduzir_cargo_sem_alterar_nivel_ou_escopo": true,
+        "datas": "mes_e_ano_no_idioma_do_curriculo",
+        "origem_empresa_cargo_periodo": "base_do_candidato_e_atualizacoes_confirmadas",
+        "inventar_datas_ausentes": false,
+        "vinculo_ou_periodo_material_ausente": "consultar_fonte_estruturada_ou_registrar_pendencia_antes_de_liberar_curriculo",
+        "ordem": "cronologia_decrescente_por_inicio_do_vinculo_depois_empresa_e_cargo",
+        "unidade": "vinculo_distinto_sem_repetir_variantes_da_mesma_empresa_cargo_periodo",
+        "linhas_resumidas_consumem_limite_25": false,
+        "empresas_e_datas_do_exemplo_sao_lista_fixa": false,
+        "etapa_de_redacao": "montagem_do_curriculo; matching_apenas_referencia_vinculos",
+        "presenca_empresas": "seguir_montagem_curriculo.presenca_empresas"
+      },
+      "formacao_idiomas_consumem_limite": false,
+      "meta_minima_experiencias_no_rascunho": 15,
+      "empresas_opcionais": [],
+      "cobertura_requisitos": {
+        "prioridades": {
+          "1": "central",
+          "2": "importante",
+          "3": "complementar"
+        },
+        "evidencias_por_requisito": 2,
+        "nota_boa_cobertura": 4,
+        "ordem": "prioridade_crescente_depois_ordem_original",
+        "selecao": "cobertura_primeira_e_segunda_evidencia_depois_ranking_global",
+        "nota_3": "elegivel_com_cobertura_parcial",
+        "execucao": "local_sobre_notas_calculadas_sem_novas_chamadas_ou_releituras",
+        "prioridade_nao_altera_nota": true
+      }
+    },
+    "lacunas": {
+      "consultar_secoes_pertinentes_da_base_antes_de_perguntar": true,
+      "ausencia_na_base_significa_ausencia_na_carreira": false,
+      "linguagem": "impessoal_de_evidencia",
+      "confirmacao": {
+        "confirmado": "decisao_humana; atualizar_informacao_confirmada_em_etapa_propria_sem_alterar_nota_original_silenciosamente",
+        "parcialmente_confirmado": "decisao_humana; atualizar_informacao_confirmada_em_etapa_propria_sem_alterar_nota_original_silenciosamente",
+        "negado": "nao_usar_afirmacao_negada",
+        "incerto": "manter_pendencia_sem_preencher_por_hipotese",
+        "silencio_equivale_a_confirmacao": false,
+        "repetir_pergunta_ja_respondida_sem_nova_evidencia": false
+      },
+      "escopo_matching": "pendencias_no_terminal_ou_conversa; arquivo_de_aprovadas_sem_experiencias_nao_selecionadas",
+      "notas_candidatas_a_reescrita": [
+        1,
+        2
+      ],
+      "registro_de_lacunas_independe_do_acionamento_da_reescrita": true
+    },
+    "saida": {
+      "campos_persistidos": [
+        "versao_base",
+        "versao_requisitos",
+        "selecionadas"
+      ],
+      "conteudo": "somente_IDs_aprovados_em_ordem_e_controles_de_consistencia",
+      "matriz_notas_familias_triagem_medicoes": "transitorias_em_memoria_terminal_ou_conversa",
+      "controle_versao": "hash_canonico_da_base_e_do_JSON_da_vaga"
+    },
+    "controle": {
+      "modelo": "avaliar_correspondencia_semantica_por_relacao",
+      "python": [
+        "resolver_ids",
+        "validar_notas",
+        "calcular_maximos",
+        "validar_familias",
+        "classificar_grupos_empresas",
+        "validar_admissao_demais",
+        "deduplicar",
+        "ordenar",
+        "aplicar_limites_por_grupo",
+        "aplicar_limite_global",
+        "contar_experiencias_3_5_e_decidir_acionamento_reescrita_notas_1_2",
+        "verificar_preservacao_da_base"
+      ],
+      "ids_invalidos_notas_invalidas_ou_estado_factual_incompativel": "rejeitar_saida_sem_relaxar_regras"
+    },
+    "recuperacao": {
+      "etapas": [
+        "consultar_indice_de_grupos_por_requisito",
+        "recuperar_realizacoes_por_fatos_e_componentes",
+        "recuperar_fonte_principal_e_detalhes_necessarios",
+        "avaliar_evidencias_individuais",
+        "deduplicar_realizacoes_e_aplicar_selecao_vigente"
+      ],
+      "indice": "indice_matching_no_mesmo_arquivo_de_regras",
+      "preparacao": "etapa_separada; ausencia_do_indice_interrompe_matching_sem_indexar_automaticamente",
+      "grupo": "assunto_transversal_com_requisitos_comuns_e_referencias_a_ids_existentes",
+      "permitir_experiencia_em_varios_grupos": true,
+      "requisitos_comuns": "pistas_de_recuperacao_sem_nota_ou_confirmacao_factual",
+      "triagem": "todos_os_requisitos_obrigatorios_e_desejaveis; incluir_correspondencia_direta_e_transferibilidade",
+      "incerteza_ou_requisito_sem_grupo": "continuar_demais_requisitos; requisito_sem_grupo_familia_ou_realizacao_recebe_nota_1_e_lacuna_no_diagnostico_sem_proposta_ou_aprovacao_por_si_so; sem_ampliar_para_toda_base",
+      "selecao_abaixo_da_meta_minima": "manter_universo_recuperado_e_pendencias; nao_ampliar_automaticamente_para_toda_a_base",
+      "nao_recuperadas": "nao_avaliadas; nunca_recebem_nota_1_por_exclusao",
+      "exaustivo": "somente_se_todos_os_ids_da_base_forem_avaliados",
+      "indice_desatualizado_ou_incompleto": "interromper_sem_salvar_matching; atualizar_indice_explicitamente",
+      "preservar_textos_ids_vinculos_e_regras_de_pontuacao": true,
+      "comandos_preparacao": [
+        "scripts/avaliar_experiencias.py --indexar-base",
+        "scripts/criar_curriculo.py --indexar-base"
+      ],
+      "recuperacao_de_toda_base": "interromper_e_revisar_indice_sem_avaliacao_integral",
+      "grupos_definidos": [],
+      "realizacoes": {
+        "preparacao": "separada_e_explicitamente_autorizada",
+        "comando": "scripts/avaliar_experiencias.py --organizar-realizacoes",
+        "armazenamento": "indice_matching.realizacoes",
+        "unidade": "mesmo_fato_projeto_resultado_ou_responsabilidade_especifica_por_vinculo",
+        "versao_com_varios_fatos": "pode_referenciar_varias_realizacoes",
+        "resumo": "sustentado_por_uma_versao_original_referenciada; nao_combinar_para_fabricar_evidencia",
+        "conflitos": "sinalizar_divergencia_material_sem_resolver_automaticamente",
+        "ativacao_matching": "triagem_por_fatos; pontuacao_somente_por_textos_originais_recuperados",
+        "fonte_principal": "uma_versao_original_referenciada_por_realizacao; avaliada_uma_vez_por_execucao",
+        "detalhes": "busca_local_por_pistas_especificas_do_requisito; recuperar_fontes_adicionais_somente_para_pistas_ainda_nao_cobertas; sem_nota_por_palavras_chave",
+        "preservacao": "todas_as_versoes_originais_e_ids_preservados; nao_avaliadas_sem_notas",
+        "componentes": "detalhes_com_ids_e_trecho_original_verificavel; sem_fundir_fatos_ou_propagacao_de_notas"
+      },
+      "contexto_especifico_nao_confirmado": "recuperar_grupos_e_fatos_potencialmente_transferiveis; lacunas_e_atendimento_decididos_na_avaliacao_original",
+      "lacunas": "transitorias; nota_1_do_requisito_sem_matching; propostas_somente_se_selecao_abaixo_da_meta_e_limitadas_ao_deficit; com_meta_atingida_sem_propostas_por_lacunas"
+    }
+  }
+}

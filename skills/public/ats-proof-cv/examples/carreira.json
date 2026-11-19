@@ -1,0 +1,42 @@
+{
+  "nome": "Marina Exemplo",
+  "contato": "marina@example.com",
+  "experiencias": [
+    {
+      "id": "nave-produto",
+      "empresa": "Nave Fictícia",
+      "cargo": "Analista de Produto",
+      "periodo": {"entrada": "2022-03", "saida": "2025-11", "atual": false},
+      "experiencia": [
+        {
+          "id": "produto-entrevistas",
+          "texto": "Conduziu entrevistas de descoberta com clientes B2B para mapear pontos de abandono durante o onboarding."
+        },
+        {
+          "id": "produto-priorizacao",
+          "texto": "Usou os achados da pesquisa para priorizar melhorias de onboarding com design e engenharia."
+        },
+        {
+          "id": "produto-metricas",
+          "texto": "Criou um painel semanal para acompanhar a taxa de ativação. Após mudanças de onboarding, a taxa de ativação subiu de 41% para 53%."
+        },
+        {
+          "id": "produto-metricas-alternativa",
+          "texto": "Acompanhou semanalmente a taxa de ativação de 41% para 53% após mudanças de onboarding."
+        }
+      ]
+    },
+    {
+      "id": "mapa-operacoes",
+      "empresa": "Mapa Fictício",
+      "cargo": "Analista de Operações",
+      "periodo": {"entrada": "2020-02", "saida": "2022-02", "atual": false},
+      "experiencia": [
+        {
+          "id": "operacoes-estoque",
+          "texto": "Preparou inventários de estoque e documentou o processo de contagem para a equipe de operações."
+        }
+      ]
+    }
+  ]
+}

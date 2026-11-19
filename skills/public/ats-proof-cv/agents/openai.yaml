@@ -1,0 +1,4 @@
+interface:
+  display_name: "ATS-Proof CV"
+  short_description: "Tailor your résumé to a role using evidence from your career."
+  default_prompt: "Use $ats-proof-cv to tailor my résumé to this job using my career file."

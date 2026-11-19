@@ -5,6 +5,8 @@ description: Cria ou retoma CVs no Adaptar Vaga com API, recuperação local por
 
 # Criar CV Embedding
 
+**Para usar com seus próprios dados** · Instale a [ATS-Proof CV, a edição pública](../../public/ats-proof-cv/README.md). O fluxo abaixo é a instalação local do projeto Adaptar Vaga.
+
 Projeto: `/Users/alex/Documents/Adaptar Vaga`.
 
 ## Variante de recuperação por embeddings

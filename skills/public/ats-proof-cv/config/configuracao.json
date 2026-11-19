@@ -1,0 +1,445 @@
+{
+  "versao": 28,
+  "extracao_vaga": {
+    "competencias": {
+      "quantidade": 10,
+      "origem": "inferidas_das_atividades_contexto_e_nivel_da_vaga"
+    },
+    "ferramentas": {
+      "minimo": 5,
+      "maximo": 10,
+      "origem": "citadas_no_anuncio_complementadas_por_inferencia_contextual"
+    },
+    "idioma_listas": "idioma original predominante do anuncio (idioma_anuncio), independente de idioma_cv; sem predominancia preservar idiomas do conteudo",
+    "listas_de_strings_sem_notas_justificativas_ou_evidencias": true,
+    "itens_distintos": true,
+    "gerar_na_mesma_chamada_dos_requisitos": true,
+    "consultar_base_do_candidato": false,
+    "requisitos_excluidos": [
+      "idioma",
+      "disponibilidade_para_viagens",
+      "formacao_academica"
+    ]
+  },
+  "montagem_curriculo": {
+    "nome_arquivo": {
+      "padrao": "CV_{company}_{role}",
+      "origem_company": "requisitos-vaga.json.nome_empresa",
+      "origem_role": "requisitos-vaga.json.nome_vaga",
+      "empresa_ausente": "empresa_nao_informada",
+      "normalizacao_componentes": "preservar_maiusculas_remover_acentos_substituir_separadores_por_underscore"
+    },
+    "competencias_e_ferramentas": {
+      "origem": "json_da_vaga",
+      "incluir_listas_diretamente": true,
+      "avaliar_pontuar_ou_cruzar_com_base": false,
+      "consomem_limite_25_experiencias": false
+    },
+    "reescrita_notas_1_2": {
+      "acionamento": "quantidade_selecionada_abaixo_da_meta_minima",
+      "quantidade_a_complementar": "deficit_da_meta_minima; lacunas_podem_orientar_as_propostas_sem_aumentar_sua_quantidade",
+      "propostas": "hipoteses_separadas_dos_vinculos; sem_inferir_fatos_confirmados",
+      "validacao_humana": "obrigatoria_para_propostas; incluir_apenas_fatos_confirmados_e_referenciados_na_base",
+      "alterar_base_automaticamente": false
+    },
+    "validacao_humana": {
+      "quando": "experiencias_insuficientes_ou_propostas_de_complementacao",
+      "com_experiencias_suficientes": "redacao_validacao_tecnica_word_e_pdf_automaticos; lacunas_por_requisito_nao_exigem_propostas_nem_aprovacao",
+      "aprovacao": "somente_decisao_humana_explicita_para_propostas; nunca_simular_aprovacao",
+      "pendencias": "terminal_ou_conversa; nao_persistir_relatos_resolvidos",
+      "erros_tecnicos": "corrigir_no_escopo; nao_relaxar_contratos_nem_cortar_conteudo_silenciosamente"
+    },
+    "descricoes_empresas": {
+      "regra": "inserir_textos_cadastrados_por_script_no_idioma_cv_sem_regenerar_por_vaga",
+      "usar_em_historico_resumido": false,
+      "alterar_por_relevancia_da_vaga": false,
+      "textos": {},
+      "empresas_sem_descricao": [
+        "Grupo Faz",
+        "SG&C Comunicação",
+        "SG&C Comunicacao",
+        "Comercial Futebol Clube"
+      ],
+      "condicao_inclusao": "somente_para_vinculo_com_ao_menos_uma_experiencia_detalhada_no_curriculo_final",
+      "inventar_descricao_para_empresa_nao_cadastrada": false
+    },
+    "ordem_vinculos": {
+      "primeiro": null,
+      "restantes": [
+        "vinculos_atuais_antes_dos_encerrados",
+        "atuais_por_entrada_decrescente",
+        "encerrados_por_saida_decrescente",
+        "empate_por_entrada_decrescente_depois_empresa_e_cargo_em_ordem_lexicografica"
+      ],
+      "datas_ausentes": "apos_vinculos_com_datas_conhecidas_no_mesmo_grupo; informar_pendencia_no_terminal_sem_interromper_montagem",
+      "experiencias_dentro_do_vinculo": "preservar_ranking_da_selecao",
+      "alterar_notas_ou_selecao": false
+    },
+    "presenca_empresas": {
+      "origem": "vinculos_da_base_do_candidato",
+      "demais_empresas": "presenca_obrigatoria_independentemente_da_selecao_de_realizacoes",
+      "representacao": "uma_entrada_por_empresa; nome_em_titulo_e_cargo_com_periodo_no_mesmo_paragrafo; somente_realizacoes_selecionadas",
+      "duplicar_vinculo_em_experiencias_anteriores": false,
+      "linhas_sem_realizacoes_consumem_limite_25": false,
+      "periodo_ou_cargo_pendente": "preservar_vinculo_e_informar_pendencia_no_terminal_sem_inventar_valores_ou_exigir_aprovacao",
+      "omitir_empresa_obrigatoria_por_falta_de_aderencia": false
+    },
+    "ordem_secoes": [
+      "identificacao_contatos_e_cargo_alvo",
+      "resumo_profissional",
+      "experiencias_profissionais",
+      "historico_resumido",
+      "ferramentas",
+      "competencias"
+    ],
+    "script": "scripts/montar_curriculo.py",
+    "contrato_entrada": {
+      "campos": [
+        "versao_base",
+        "versao_requisitos",
+        "resumo_profissional",
+        "vinculos"
+      ],
+      "vinculo": [
+        "empresa_id",
+        "cargo",
+        "experiencias"
+      ],
+      "experiencia": [
+        "ids",
+        "texto"
+      ],
+      "ids": "IDs_originais_aprovados_do_mesmo_vinculo; cada_ID_uma_vez_no_documento",
+      "origem_vaga": "idioma_cv_cargo_alvo_competencias_ferramentas_resolvidos_em_requisitos-vaga.json",
+      "origem_base": "empresa_e_datas_resolvidas_por_empresa_id_na_base_vigente",
+      "propostas_opcionais": "somente_quando_quantidade_selecionada_abaixo_da_meta_minima; aprovado_por_usuario_false_enquanto_pendentes",
+      "texto": "texto_final_no_idioma_cv; sem_API_na_montagem"
+    },
+    "exportacao_pdf": {
+      "opcao": "--pdf",
+      "origem": "docx_montado",
+      "conversor": "LibreOffice_headless",
+      "chamadas_api": 0,
+      "saida": "mesma_pasta_e_nome_do_docx_com_extensao_pdf",
+      "validacao": "texto_extraivel_em_todas_as_paginas; docx_inalterado",
+      "intermediarios": "temporarios_removidos_automaticamente",
+      "falha": "preservar_docx_e_informar_erro_tecnico; codigo_de_saida_2",
+      "gerar_por_padrao": true
+    },
+    "apresentacao_vinculos": {
+      "empresa": "nome_principal_com_alias_entre_parenteses_sem_alterar_identidade_na_base",
+      "separador_cargo_datas": " | ",
+      "separador_listas": "; ",
+      "rotulos_atuais": {
+        "en": {
+          "principal": "Current",
+          "simultaneo": "Current (Concurrent)"
+        },
+        "pt": {
+          "principal": "Atual",
+          "simultaneo": "Atual (simultâneo)"
+        }
+      },
+      "contatos": "um_paragrafo_por_telefone_email_e_link",
+      "historico_resumido": "uma_entrada_por_empresa_com_cargo_e_datas_no_mesmo_paragrafo; sem_inventar_bullets_quando_nao_ha_realizacoes_selecionadas",
+      "normalizacao_textual": "remover_delimitadores_latex_e_escape_percentual; preservar_valores; pipes_com_espacos",
+      "validacao_datas": "comparar_com_mes_corrente_em_America_Sao_Paulo; informar_datas_futuras_sem_alterar_fatos"
+    }
+  },
+  "ats": {
+    "resolucao": {
+      "campo_origem": "json_da_vaga.ats",
+      "perfis": [
+        "Greenhouse",
+        "Lever",
+        "Workday",
+        "Ashby",
+        "SmartRecruiters",
+        "Gupy",
+        "desconhecido"
+      ],
+      "nome_ausente_ou_nao_cadastrado": "desconhecido",
+      "procedimento": [
+        "carregar_regras_universais",
+        "aplicar_somente_perfil_do_ats_identificado",
+        "carregar_regras_de_redacao_do_idioma_cv",
+        "definir_cargo_alvo_no_topo_e_titulos_de_secoes",
+        "gerar_json_reescrito_com_regras_de_conteudo_e_redacao",
+        "validar_json_reescrito",
+        "aplicar_exigencias_explicitas_da_vaga_para_formato_e_foto",
+        "validar_documento_final"
+      ],
+      "precedencia_formato": [
+        "formatos_explicitamente_aceitos_pelo_formulario",
+        "formato_explicitamente_solicitado_no_anuncio",
+        "formato_preferido_do_perfil",
+        "docx"
+      ],
+      "regras_universais_nao_sobrescritas_por_perfil": true,
+      "alterar_matching_notas_limites_ou_textos_da_base": false,
+      "presumir_pesos_criterios_internos_ordenacao_ou_chance_de_aprovacao": false,
+      "etapa_de_aplicacao": "antes_da_geracao_do_json_reescrito; repetir_validacao_visual_apos_formatacao"
+    },
+    "universais": {
+      "formatacao": {
+        "colunas": 1,
+        "elementos_proibidos": [
+          "tabelas",
+          "caixas_de_texto",
+          "graficos",
+          "barras_de_habilidades",
+          "texto_em_imagens"
+        ],
+        "nome_e_contatos": "corpo_do_documento",
+        "contatos_em_cabecalho_ou_rodape": false,
+        "formato_preferido": "docx",
+        "pdf": "exportado_digitalmente_com_texto_selecionavel_e_ordem_de_leitura_preservada",
+        "pdf_escaneado_ou_composto_somente_por_imagens": false,
+        "palavras_chave_ocultas_fonte_branca_ou_texto_invisivel": false,
+        "foto": "omitir; incluir_somente_se_exigida_explicitamente_na_vaga",
+        "datas": {
+          "padrao": "mes_abreviado ano - mes_abreviado ano",
+          "idioma": "idioma_cv",
+          "vinculo_atual": "mes_abreviado ano - termo_localizado_para_atual",
+          "aplicar_mesmo_padrao_em_todos_os_vinculos": true,
+          "inventar_mes_ano_ou_situacao_atual": false,
+          "origem": "base_e_complementos_confirmados"
+        },
+        "titulos_secoes": {
+          "pt": {
+            "resumo": "Resumo profissional",
+            "experiencias": "Experiência Profissional",
+            "formacao": "Formação Acadêmica",
+            "competencias": "Habilidades",
+            "ferramentas": "Ferramentas",
+            "idiomas": "Idiomas",
+            "historico_resumido": "Experiências anteriores"
+          },
+          "en": {
+            "resumo": "Professional Summary",
+            "experiencias": "Professional Experience",
+            "formacao": "Education",
+            "competencias": "Skills",
+            "ferramentas": "Tools",
+            "idiomas": "Languages",
+            "historico_resumido": "Earlier Experience"
+          },
+          "outros_idiomas": "equivalentes_padronizados_no_idioma_cv_sem_titulos_criativos"
+        }
+      },
+      "conteudo": {
+        "cargo_alvo": "titulo_no_topo_do_curriculo_abaixo_do_nome; usar_palavras_do_nome_vaga_preservando_idioma_e_normalizando_somente_pontuacao_proibida",
+        "cargo_historico": "cargo_de_cada_vinculo_na_secao_de_experiencias; preservar_cargo_real",
+        "termos_da_vaga": "preservar_termos_exatos_quando_compativeis_com_o_conteudo",
+        "competencias_e_ferramentas": "usar_listas_do_json_da_vaga_sem_matching; preservar_idioma_original_conforme_extracao_vaga",
+        "estrutura_preferida_de_realizacao": "verbo_de_acao + ferramenta_quando_confirmada + resultado_quantificado_quando_confirmado",
+        "ferramenta_ou_metrica_ausente": "omitir_componente_ausente_sem_inventar",
+        "inferir_ferramentas_ou_resultados_das_listas_da_vaga_para_experiencias": false,
+        "reescrever_experiencias_apenas_para_adequar_estrutura_ats": false,
+        "aplicar_estrutura_na_redacao_autorizada": "resumo_traducao_e_consolidacao_de_repeticoes; preservar_fatos_e_referencias",
+        "criar_secoes_sem_dados": false
+      },
+      "candidatura": {
+        "revisar_dados_importados_pelo_parser": true,
+        "preencher_campos_obrigatorios_e_revisar_campos_pertinentes_disponiveis": true,
+        "anexo_substitui_campos_obrigatorios": false
+      }
+    },
+    "perfis": {
+      "Greenhouse": {
+        "curriculo": {
+          "priorizar_termos_exatos_do_cargo_alvo_e_habilidades_centrais": true,
+          "local_cargo_alvo": "titulo_no_topo_abaixo_do_nome; nao_depender_apenas_do_resumo"
+        }
+      },
+      "Lever": {
+        "curriculo": {
+          "priorizar_termos_exatos_do_cargo_alvo_e_habilidades_centrais": true,
+          "local_cargo_alvo": "titulo_no_topo_abaixo_do_nome; nao_depender_apenas_do_resumo"
+        }
+      },
+      "Workday": {
+        "curriculo": {
+          "validar_consistencia_de_datas_em_todos_os_vinculos": true
+        },
+        "candidatura": {
+          "revisar_empresa_cargo_datas_e_formacao_importados": true,
+          "preencher_campos_estruturados_exigidos": true,
+          "orientacao": "candidatar_se_assim_que_documentos_e_dados_estiverem_prontos",
+          "assumir_ordenacao_por_data_de_envio": false,
+          "assumir_peso_fixo_dos_campos_estruturados": false
+        }
+      },
+      "Ashby": {
+        "curriculo": {
+          "priorizar_contexto_em_resumos_e_redacao_autorizada": [
+            "atividade",
+            "contexto_de_negocio",
+            "nivel_de_responsabilidade",
+            "ferramenta_confirmada_quando_disponivel",
+            "resultado_confirmado_quando_disponivel"
+          ],
+          "palavras_chave_soltas_substituem_contexto_das_experiencias": false
+        },
+        "candidatura": {
+          "presumir_criterios_de_ia_nao_divulgados": false
+        }
+      },
+      "SmartRecruiters": {
+        "curriculo": {
+          "paragrafos_curtos_e_bullets_simples": true,
+          "validar_legibilidade_da_previa": true,
+          "padronizar_titulo_apenas_para_cargo_alvo": true
+        },
+        "candidatura": {
+          "preencher_resumo_profissional_se_campo_disponivel": true,
+          "origem_resumo": "mesmo_resumo_do_curriculo",
+          "presumir_campo_de_resumo_em_todo_formulario": false
+        }
+      },
+      "Gupy": {
+        "curriculo": {
+          "formato_preferido": "pdf",
+          "pdf_com_texto_selecionavel": true,
+          "padrao_nome_arquivo": "{nome}-{sobrenome}-curriculo.pdf",
+          "normalizacao_nome_arquivo": [
+            "minusculas",
+            "remover_acentos",
+            "substituir_espacos_por_hifens"
+          ],
+          "forcar_portugues_se_vaga_estiver_em_outro_idioma": false
+        },
+        "candidatura": {
+          "revisar_todos_os_campos_apos_importacao": true,
+          "testes_comportamentais": "responder_somente_se_solicitados_no_processo",
+          "formato_pdf_preferido_e_regra_do_projeto_nao_exigencia_exclusiva_da_plataforma": true
+        }
+      },
+      "desconhecido": {
+        "curriculo": {
+          "formato_preferido": "docx"
+        },
+        "candidatura": {
+          "seguir_campos_e_formatos_aceitos_no_formulario": true
+        }
+      }
+    },
+    "validacao": {
+      "responsavel": "script_de_montagem_e_validacao_do_documento",
+      "verificar": [
+        "coluna_unica",
+        "ausencia_de_elementos_proibidos",
+        "contatos_no_corpo",
+        "titulos_padronizados",
+        "formato_aceito",
+        "texto_extraivel_no_pdf",
+        "ordem_de_leitura",
+        "ausencia_de_texto_oculto",
+        "datas_uniformes",
+        "politica_de_foto",
+        "preservacao_dos_cargos_e_experiencias",
+        "nome_arquivo_gupy_quando_aplicavel"
+      ],
+      "falha": "corrigir_erros_tecnicos_sem_relaxar_contratos; informar_pendencias_sem_novo_gate_humano",
+      "aprovacao_tecnica_garante_aprovacao_no_ats": false
+    }
+  },
+  "redacao": {
+    "etapa": "antes_e_durante_a_geracao_do_json_reescrito",
+    "idioma_principal": "json_da_vaga.idioma_cv",
+    "escopo": "textos_visiveis_do_curriculo; nao_sintaxe_json_ids_fontes_ou_metadados_tecnicos",
+    "perfis_editoriais": {
+      "escolha": "Na mesma chamada de redação, usar no máximo um perfil pelas responsabilidades centrais dos requisitos da vaga; o título é apenas uma pista. Em vaga híbrida, usar o perfil apenas se houver um foco dominante claro. Sem correspondência clara, seguir a redação geral.",
+      "aplicacao": "Orientar o resumo e a ênfase dentro dos textos das experiências selecionadas, somente quando o tema estiver nos requisitos e nas fontes selecionadas. Preservar todos os fatos e detalhes únicos, IDs, vínculos, cargos e ordem definida pelo projeto. Tema ausente é omitido; não gera requisito, proposta, pergunta ou pendência. Não alterar matching, estrutura ou blocos fixos.",
+      "perfis": {
+        "country_manager": {
+          "responsabilidades_centrais": "Desenvolvimento do mercado de um país e liderança ou coordenação da operação local.",
+          "resumo": "Destacar desenvolvimento de mercado, coordenação da operação e resultados comprovados.",
+          "enfase_experiencias": "Tornar visíveis expansão de mercado, canais e parceiros, estruturação da operação e coordenação entre áreas."
+        },
+        "marketing_manager": {
+          "responsabilidades_centrais": "Gestão da estratégia e execução de marketing, com responsabilidade por resultados de negócio.",
+          "resumo": "Destacar estratégia de marketing, execução e resultados comprovados de negócio.",
+          "enfase_experiencias": "Tornar visíveis posicionamento, geração de demanda, campanhas e canais, CRM e conversão, métricas e gestão da execução."
+        },
+        "sales_manager": {
+          "responsabilidades_centrais": "Gestão da operação comercial e da equipe de vendas, com responsabilidade por desempenho.",
+          "resumo": "Destacar gestão comercial, desenvolvimento da equipe e resultados comprovados de vendas.",
+          "enfase_experiencias": "Tornar visíveis resultados comerciais, pipeline e forecast, processos de vendas e desenvolvimento da equipe."
+        }
+      }
+    },
+    "universais": {
+      "caracteres_proibidos": [
+        "—",
+        "–",
+        ":"
+      ],
+      "pontuacao_alternativa": "ponto_virgula_ou_parenteses_conforme_frase; hifen_simples_para_intervalos_de_datas",
+      "contatos": "email_sem_rotulo_com_dois_pontos; links_com_texto_visivel_sem_protocolo_e_destino_em_metadados",
+      "afirmacoes_de_falta_de_conhecimento_experiencia_ou_capacidade": false,
+      "lacunas": "somente_no_matching_ou_pendencias_internas; nunca_nos_textos_do_curriculo",
+      "inventar_afirmacao_positiva_para_ocultar_lacuna": false,
+      "afirmacoes_genericas_sem_conteudo": [
+        "profissional_dinamico",
+        "apaixonado_por_desafios",
+        "results_driven",
+        "dynamic_professional"
+      ],
+      "usar_cliches_sem_evidencia_concreta": false,
+      "tom": "direto_profissional_concreto_sem_superlativos_ou_promessas",
+      "pronomes_de_primeira_pessoa_explicitos": false,
+      "forma_dos_bullets": "frases_curtas_com_uma_realizacao_principal; preferir_verbo_de_acao_na_redacao_autorizada",
+      "repetir_mesma_realizacao_em_varios_bullets": false,
+      "expandir_sigla_tecnica_na_primeira_ocorrencia": "somente_com_significado_conhecido_e_se_ajudar_a_leitura",
+      "preservar_numeros_unidades_periodos_e_escopo_confirmados": true,
+      "descricoes_de_empresas": "uma_frase_sobre_negocio_oferta_e_clientes_com_dados_confirmados; pendencia_interna_se_faltarem",
+      "experiencias_da_base": "traduzir_para_idioma_cv_e_consolidar_repeticoes_autorizado; preservar_fatos_metricas_escopo_e_ids_de_origem; nao_alterar_base",
+      "alterar_base_ou_json_original_da_vaga": false,
+      "maximo_palavras_experiencia_reescrita": 70,
+      "propostas_para_lacunas": "permitidas_em_bloco_separado_de_revisao_humana_com_rotulo_de_hipotese; nunca_confirmadas_automaticamente"
+    },
+    "idiomas": {
+      "pt": {
+        "variante": "portugues_brasileiro",
+        "verbos_na_redacao_autorizada": "sem_pronome_e_em_forma_consistente; passado_para_realizacoes_concluidas_presente_para_atividades_atuais_confirmadas",
+        "evitar_traducoes_literais_e_ingles_desnecessario": true,
+        "preservar_marcas_e_termos_tecnicos_consolidados": true,
+        "termo_vinculo_atual": "atual"
+      },
+      "en": {
+        "variante": "ingles_americano_como_padrao; seguir_variante_explicitamente_exigida_pela_vaga",
+        "verbos_na_redacao_autorizada": "simple_past_para_realizacoes_concluidas_e_funcoes_encerradas; present_para_atividades_atuais_confirmadas",
+        "sujeitos_I_my_we_our": false,
+        "evitar_traducao_literal_do_portugues": true,
+        "termo_vinculo_atual": "Present"
+      }
+    },
+    "listas_da_vaga": {
+      "competencias_e_ferramentas": "preservar_idioma_original_das_listas_conforme_decisao_anterior; normalizar_somente_pontuacao_proibida_na_copia_para_o_curriculo"
+    },
+    "validacao": {
+      "automatizavel": [
+        "ausencia_dos_caracteres_proibidos_em_textos_visiveis",
+        "cargo_alvo_no_topo",
+        "titulos_de_secoes_e_datas_padronizados"
+      ],
+      "revisao_semantica": [
+        "ausencia_de_afirmacoes_de_incapacidade",
+        "preservacao_factual",
+        "idioma_e_tempos_verbais",
+        "ausencia_de_cliches_e_repeticoes"
+      ],
+      "falha": "corrigir_erros_tecnicos; pendencias_no_terminal; validacao_humana_somente_para_complementacao_de_experiencias_insuficientes",
+      "redundancia": {
+        "minimo_palavras_comuns": 8,
+        "similaridade_minima": 0.8,
+        "acao": "interromper_antes_de_salvar_ou_montar_sem_excluir_ids; diferenciar_ou_consolidar_com_fontes_originais",
+        "cobertura_texto_menor_minima": 0.85
+      }
+    }
+  },
+  "layout": {
+    "template": "config/template.docx"
+  }
+}

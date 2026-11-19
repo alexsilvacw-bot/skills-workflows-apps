@@ -1,0 +1,9 @@
+Empresa fictícia: Horizonte Exemplo
+Cargo: Analista de Produto B2B
+
+Requisitos obrigatórios
+Conduzir entrevistas de descoberta com clientes B2B e transformar os achados em prioridades de produto.
+Acompanhar métricas de ativação.
+
+Desejável
+Experiência com experimentos A/B.
